@@ -1,0 +1,34 @@
+
+
+spring:
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  application:
+    name: duke
+  datasource:
+    url: jdbc:h2:./assistant;AUTO_SERVER=TRUE
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+
+  ai:
+    ollama:
+      base-url: http://127.0.0.1:11434
+      chat:
+        options:
+          model: llama3
+          temperature: 0.3
+        answer:
+          options:
+            model: llama3
+            temperature: 0.4
+        deterministic:
+          options:
+            model: llama3
+            temperature: 0.0
+    embedding:
+      options:
+        model: nomic-embed-text
