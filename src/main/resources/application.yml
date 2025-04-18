@@ -1,22 +1,12 @@
 
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui/index.html
+
 spring:
   main:
     allow-bean-definition-overriding: true
-  mvc:
-    static-path-pattern: /static/**
-    cors:
-      allowed-origins: "*"
-      allow-credentials: true
-      allowed-methods: GET, POST, PUT, DELETE, OPTIONS
-      allowed-headers: "*"
-  webflux:
-    static-path-pattern: /static/**
-
-  web:
-    resources:
-      static-locations: classpath:/static/
-
 management:
   endpoints:
     web:

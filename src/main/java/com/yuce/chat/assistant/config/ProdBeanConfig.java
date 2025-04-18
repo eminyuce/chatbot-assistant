@@ -1,9 +1,6 @@
 package com.yuce.chat.assistant.config;
 
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.openai.OpenAiChatModel;
-import org.springframework.ai.openai.OpenAiChatOptions;
-import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -24,8 +21,8 @@ public class ProdBeanConfig {
     private String openAiBaseUrl;
 
     @Bean
-    @Profile("prod")
     public ChatModel openAiChatModel() {
+        /*
         OpenAiApi openAiApi =  OpenAiApi.builder()
                 .baseUrl(openAiBaseUrl)
                 .apiKey(openAiApiKey)
@@ -35,10 +32,12 @@ public class ProdBeanConfig {
                 .openAiApi(openAiApi)
                 .defaultOptions(OpenAiChatOptions.builder().model(openAiModel).build())
                 .build();
+        */
+        return null;
     }
 
+
     @Bean
-    @Profile("prod")
     public ChatClient openAiChatClient(ChatModel openAiChatModel) {
         return ChatClient.builder(openAiChatModel)
                 .defaultSystem("You are a helpful assistant.")
