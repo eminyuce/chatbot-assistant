@@ -5,6 +5,8 @@ import com.yuce.chat.assistant.feign.StockClient;
 import com.yuce.chat.assistant.feign.WeatherClient;
 import com.yuce.chat.assistant.model.StockResponse;
 import com.yuce.chat.assistant.model.WeatherResponse;
+import com.yuce.chat.assistant.tool.AiToolService;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -15,6 +17,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +28,9 @@ public class ChatService {
     private ChatModel chatModel;
 
     @Autowired
+    private ChatClient chatClient;
+
+    @Autowired
     private WeatherClient weatherClient;
 
     @Autowired
@@ -32,6 +38,9 @@ public class ChatService {
 
     @Value("classpath:/prompts/intent-message.st")
     private Resource intentMessageResource;
+
+    @Autowired
+    private AiToolService aiToolService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -150,6 +159,17 @@ public class ChatService {
         }
     }
 
+
+    public String callTools(String message) {
+        UserMessage userMessage = new UserMessage(message);
+        final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
+        return chatClient
+                .prompt(prompt)
+                .tools(aiToolService) // Auto-detects @Tool-annotated methods
+                .call()
+                .content();
+    }
+
     private String formatWeatherResponse(WeatherResponse weather) {
         return String.format(
                 "The weather in %s is %.1f°C with %d%% humidity.",
@@ -166,6 +186,8 @@ public class ChatService {
                 stock.getGlobalQuote().getPrice()
         );
     }
+
+
 
     private static class IntentResult {
         String intent;
