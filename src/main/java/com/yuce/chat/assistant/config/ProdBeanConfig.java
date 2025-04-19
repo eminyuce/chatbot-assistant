@@ -1,11 +1,11 @@
 package com.yuce.chat.assistant.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.context.annotation.Bean;
 
 @Profile("prod")
 @Configuration

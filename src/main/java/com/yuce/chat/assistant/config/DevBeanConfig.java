@@ -3,7 +3,6 @@ package com.yuce.chat.assistant.config;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +18,7 @@ public class DevBeanConfig {
 
     @Value("${spring.ai.ollama.model:llama3}")
     private String ollamaModel;
+
     @Bean("ollamaChatModel")
     @Primary
     public ChatModel ollamaChatModel() {

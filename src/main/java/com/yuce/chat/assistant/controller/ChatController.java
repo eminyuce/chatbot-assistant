@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatController {
 
 
-
-    @PostMapping(value ="/ask", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/ask", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String ask(@RequestBody String userPrompt) {
         return userPrompt;
     }

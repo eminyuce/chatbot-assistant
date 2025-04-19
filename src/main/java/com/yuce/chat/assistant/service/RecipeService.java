@@ -27,7 +27,7 @@ public class RecipeService {
 
         PromptTemplate promptTemplate = new PromptTemplate(template);
         Map<String, Object> params = Map.of(
-                "ingredients",ingredients,
+                "ingredients", ingredients,
                 "cuisine", cuisine,
                 "dietaryRestrictions", dietaryRestrictions
         );
