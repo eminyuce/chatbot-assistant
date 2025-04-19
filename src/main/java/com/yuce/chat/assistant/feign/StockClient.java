@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
         configuration = FeignClientConfig.class)
 public interface StockClient {
 
-    @GetMapping("/query")
+    @GetMapping("/stock")
     ResponseEntity<StockResponse> getStockPrice(
             @RequestParam("symbol") String symbol
     );

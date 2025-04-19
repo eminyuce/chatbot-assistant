@@ -21,8 +21,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import static com.yuce.chat.assistant.util.Constants.*;
+
 @Service
 public class ChatService {
+
 
     @Autowired
     private ChatModel chatModel;
@@ -47,7 +50,7 @@ public class ChatService {
     public String getResponse(String prompt) {
         IntentResult intent = detectIntent(prompt);
         switch (intent.intent) {
-            case "weather":
+            case WEATHER:
                 if (intent.parameters.city != null) {
                     try {
                         var weather = weatherClient.getWeather(intent.parameters.city, "metric");
@@ -58,7 +61,7 @@ public class ChatService {
                 } else {
                     return "Please specify a city for the weather query.";
                 }
-            case "stock_price":
+            case STOCK_PRICE:
                 if (intent.parameters.symbol != null) {
                     try {
                         var stock = stockClient.getStockPrice(intent.parameters.symbol);
@@ -71,36 +74,6 @@ public class ChatService {
                 }
             default:
                 return chatModel.call(prompt);
-        }
-    }
-
-    public String getResponseOptions(String prompt) {
-        IntentResult intent = detectIntent(prompt);
-        switch (intent.intent) {
-            case "weather":
-                if (intent.parameters.city != null) {
-                    try {
-                        var weather = weatherClient.getWeather(intent.parameters.city, "metric");
-                        return formatWeatherResponse(weather.getBody());
-                    } catch (Exception e) {
-                        return "Sorry, I couldn't fetch the weather for " + intent.parameters.city + ". Please try again.";
-                    }
-                } else {
-                    return "Please specify a city for the weather query.";
-                }
-            case "stock_price":
-                if (intent.parameters.symbol != null) {
-                    try {
-                        var stock = stockClient.getStockPrice(intent.parameters.symbol);
-                        return formatStockResponse(stock.getBody());
-                    } catch (Exception e) {
-                        return "Sorry, I couldn't fetch the stock price for " + intent.parameters.symbol + ". Please try again.";
-                    }
-                } else {
-                    return "Please specify a stock ticker symbol.";
-                }
-            default:
-                return chatModel.call(new Prompt(new UserMessage(prompt))).getResult().getOutput().getText();
         }
     }
 
@@ -163,11 +136,12 @@ public class ChatService {
     public String callTools(String message) {
         UserMessage userMessage = new UserMessage(message);
         final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
-        return chatClient
+        var result = chatClient
                 .prompt(prompt)
                 .tools(aiToolService) // Auto-detects @Tool-annotated methods
                 .call()
                 .content();
+        return result;
     }
 
     private String formatWeatherResponse(WeatherResponse weather) {

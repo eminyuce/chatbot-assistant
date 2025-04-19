@@ -24,13 +24,9 @@ public class GenAIController {
         return chatService.getResponse(prompt);
     }
 
-    @GetMapping("ask-ai-options")
-    public String getResponseOptions(@RequestParam String prompt) {
-        return chatService.getResponseOptions(prompt);
-    }
-
     @GetMapping("ask-ai-stream")
     public Flux<String> getResponseStream(@RequestParam String prompt) {
+
         return chatService.getResponseStream(prompt);
     }
 
@@ -43,6 +39,7 @@ public class GenAIController {
 
     @GetMapping("/chat-tool-function")
     public String callToolsMethods(@RequestParam(value = "query") String query) {
+
         return chatService.callTools(query);
     }
 
