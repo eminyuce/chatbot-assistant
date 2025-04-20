@@ -3,6 +3,7 @@ package com.yuce.chat.assistant.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.feign.StockClient;
 import com.yuce.chat.assistant.feign.WeatherClient;
+import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.StockResponse;
 import com.yuce.chat.assistant.model.WeatherResponse;
 import com.yuce.chat.assistant.tool.AiToolService;
@@ -77,41 +78,41 @@ public class ChatService {
         }
     }
 
-    public Flux<String> getResponseStream(String prompt) {
+    public Event getResponseStream(String prompt) {
         IntentResult intent = detectIntent(prompt);
+
         switch (intent.intent) {
-            case "weather":
+            case WEATHER:
                 if (intent.parameters.city != null) {
-                    return Flux.just("Fetching weather for " + intent.parameters.city + "...")
-                            .concatWith(Flux.defer(() -> {
-                                try {
-                                    var weather = weatherClient.getWeather(intent.parameters.city, "metric");
-                                    return Flux.just(formatWeatherResponse(weather.getBody()));
-                                } catch (Exception e) {
-                                    return Flux.just("Sorry, I couldn't fetch the weather for " + intent.parameters.city + ". Please try again.");
-                                }
-                            }));
+                    try {
+                        var weather = weatherClient.getWeather(intent.parameters.city, "metric");
+                        return new Event("weather", formatWeatherResponse(weather.getBody()));
+                    } catch (Exception e) {
+                        return new Event("error", "Sorry, I couldn't fetch the weather for " + intent.parameters.city + ". Please try again.");
+                    }
                 } else {
-                    return Flux.just("Please specify a city for the weather query.");
+                    return new Event("error", "Please specify a city for the weather query.");
                 }
-            case "stock_price":
+
+            case STOCK_PRICE:
                 if (intent.parameters.symbol != null) {
-                    return Flux.just("Fetching stock price for " + intent.parameters.symbol + "...")
-                            .concatWith(Flux.defer(() -> {
-                                try {
-                                    var stock = stockClient.getStockPrice(intent.parameters.symbol);
-                                    return Flux.just(formatStockResponse(stock.getBody()));
-                                } catch (Exception e) {
-                                    return Flux.just("Sorry, I couldn't fetch the stock price for " + intent.parameters.symbol + ". Please try again.");
-                                }
-                            }));
+                    try {
+                        var stock = stockClient.getStockPrice(intent.parameters.symbol);
+                        return new Event("stock", formatStockResponse(stock.getBody()));
+                    } catch (Exception e) {
+                        return new Event("error", "Sorry, I couldn't fetch the stock price for " + intent.parameters.symbol + ". Please try again.");
+                    }
                 } else {
-                    return Flux.just("Please specify a stock ticker symbol.");
+                    return new Event("error", "Please specify a stock ticker symbol.");
                 }
+
             default:
-                return chatModel.stream(prompt);
+                String response = chatModel.call(prompt);
+                return new Event("chat", response);
         }
     }
+
+
 
     private IntentResult detectIntent(String prompt) {
         try {
