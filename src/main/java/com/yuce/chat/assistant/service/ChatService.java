@@ -1,11 +1,10 @@
 package com.yuce.chat.assistant.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.feign.StockClient;
 import com.yuce.chat.assistant.feign.WeatherClient;
-import com.yuce.chat.assistant.model.Event;
-import com.yuce.chat.assistant.model.StockResponse;
-import com.yuce.chat.assistant.model.WeatherResponse;
+import com.yuce.chat.assistant.model.*;
 import com.yuce.chat.assistant.tool.AiToolService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -17,6 +16,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuce.chat.assistant.feign.StockClient;
+import com.yuce.chat.assistant.feign.WeatherClient;
+import com.yuce.chat.assistant.model.Event;
+import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.StockResponse;
+import com.yuce.chat.assistant.model.WeatherResponse;
+import com.yuce.chat.assistant.tool.AiToolService;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
+import com.yuce.chat.assistant.util.FormatTextUtil;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +40,6 @@ import static com.yuce.chat.assistant.util.Constants.*;
 @Service
 public class ChatService {
 
-
     @Autowired
     private ChatModel chatModel;
 
@@ -35,10 +47,10 @@ public class ChatService {
     private ChatClient chatClient;
 
     @Autowired
-    private WeatherClient weatherClient;
+    private StockService stockService;
 
     @Autowired
-    private StockClient stockClient;
+    private WeatherService weatherService;
 
     @Value("classpath:/prompts/intent-message.st")
     private Resource intentMessageResource;
@@ -48,71 +60,22 @@ public class ChatService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public String getResponse(String prompt) {
-        IntentResult intent = detectIntent(prompt);
-        switch (intent.intent) {
-            case WEATHER:
-                if (intent.parameters.city != null) {
-                    try {
-                        var weather = weatherClient.getWeather(intent.parameters.city, "metric");
-                        return formatWeatherResponse(weather.getBody());
-                    } catch (Exception e) {
-                        return "Sorry, I couldn't fetch the weather for " + intent.parameters.city + ". Please try again.";
-                    }
-                } else {
-                    return "Please specify a city for the weather query.";
-                }
-            case STOCK_PRICE:
-                if (intent.parameters.symbol != null) {
-                    try {
-                        var stock = stockClient.getStockPrice(intent.parameters.symbol);
-                        return formatStockResponse(stock.getBody());
-                    } catch (Exception e) {
-                        return "Sorry, I couldn't fetch the stock price for " + intent.parameters.symbol + ". Please try again.";
-                    }
-                } else {
-                    return "Please specify a stock ticker symbol.";
-                }
-            default:
-                return chatModel.call(prompt);
-        }
-    }
-
     public Event getResponseStream(String prompt) {
         IntentResult intent = detectIntent(prompt);
-
-        switch (intent.intent) {
+        switch (intent.getIntent()) {
             case WEATHER:
-                if (intent.parameters.city != null) {
-                    try {
-                        var weather = weatherClient.getWeather(intent.parameters.city, "metric");
-                        return new Event("weather", formatWeatherResponse(weather.getBody()));
-                    } catch (Exception e) {
-                        return new Event("error", "Sorry, I couldn't fetch the weather for " + intent.parameters.city + ". Please try again.");
-                    }
-                } else {
-                    return new Event("error", "Please specify a city for the weather query.");
-                }
-
+                return weatherService.getWeather(intent);
             case STOCK_PRICE:
-                if (intent.parameters.symbol != null) {
-                    try {
-                        var stock = stockClient.getStockPrice(intent.parameters.symbol);
-                        return new Event("stock", formatStockResponse(stock.getBody()));
-                    } catch (Exception e) {
-                        return new Event("error", "Sorry, I couldn't fetch the stock price for " + intent.parameters.symbol + ". Please try again.");
-                    }
-                } else {
-                    return new Event("error", "Please specify a stock ticker symbol.");
-                }
-
+                return stockService.getStockPrice(intent);
             default:
-                String response = chatModel.call(prompt);
-                return new Event("chat", response);
+                return getPromptCall(prompt);
         }
     }
 
-
+    private Event getPromptCall(String prompt) {
+        String response = chatModel.call(prompt);
+        return new Event(CHAT, response);
+    }
 
     private IntentResult detectIntent(String prompt) {
         try {
@@ -134,53 +97,24 @@ public class ChatService {
     }
 
 
-    public String callTools(String message) {
-        UserMessage userMessage = new UserMessage(message);
-        final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
-        var result = chatClient
-                .prompt(prompt)
-                .tools(aiToolService) // Auto-detects @Tool-annotated methods
-                .call()
-                .content();
-        return result;
-    }
-
-    private String formatWeatherResponse(WeatherResponse weather) {
-        return String.format(
-                "The weather in %s is %.1f°C with %d%% humidity.",
-                weather.getName(),
-                weather.getMain().getTemp(),
-                weather.getMain().getHumidity()
-        );
-    }
-
-    private String formatStockResponse(StockResponse stock) {
-        return String.format(
-                "The stock price of %s is $%s.",
-                stock.getGlobalQuote().getSymbol(),
-                stock.getGlobalQuote().getPrice()
-        );
-    }
-
-
-
-    private static class IntentResult {
-        String intent;
-        Parameters parameters;
-
-        IntentResult(String intent, Parameters parameters) {
-            this.intent = intent;
-            this.parameters = parameters;
+    public Event callTools(IChatMessage iChatMessage) {
+        try{
+            UserMessage userMessage = new UserMessage(iChatMessage.prompt());
+            final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
+            var result = chatClient
+                    .prompt(prompt)
+                    .tools(aiToolService) // Auto-detects @Tool-annotated methods
+                    .call()
+                    .content(); // Get raw String response
+            // return parseStringToEvent(result); // Custom parsing logic
+            return new Event("UNKNOWN",result);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);
         }
     }
 
-    private static class Parameters {
-        String city;
-        String symbol;
-
-        Parameters(String city, String symbol) {
-            this.city = city;
-            this.symbol = symbol;
-        }
+    private Event parseStringToEvent(String result) throws JsonProcessingException {
+        return objectMapper.readValue(result,Event.class);
     }
+
 }
