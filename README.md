@@ -29,7 +29,7 @@ User Input --> Spring AI (LLM via Ollama)
 
 ## 🧩 Tech Stack
 
-- **Java 17+**
+- **Java 21**
 - **Spring Boot 3**
 - **Spring AI**
 - **Ollama (Local LLM Runtime)**
@@ -42,7 +42,7 @@ User Input --> Spring AI (LLM via Ollama)
 
 ### Prerequisites
 
-- Java 17+
+- Java 21
 - Docker (for Ollama)
 - Ollama installed and running with a chosen LLM model (e.g., `llama2`, `mistral`, etc.)
 
@@ -66,11 +66,11 @@ ollama run mistral
 Choose one of the service modes:
 
 ```bash
-# Run ask-ai-stream service
-./mvnw spring-boot:run -Dspring-boot.run.profiles=stream
+# Run dev
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 
-# Run ask-ai-tool service
-./mvnw spring-boot:run -Dspring-boot.run.profiles=tool
+# Run prod
+./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
 ```
 
 ---
