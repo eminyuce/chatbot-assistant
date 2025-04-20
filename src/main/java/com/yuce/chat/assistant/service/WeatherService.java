@@ -5,6 +5,7 @@ import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentResult;
 import com.yuce.chat.assistant.model.Parameters;
+import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +21,20 @@ public class WeatherService {
         return this.getWeather(IntentResult.builder().parameters(Parameters.builder().city(city).build()).build());
     }
     public Event getWeather(IntentResult intent) {
-        var eventResponse = EventResponse.builder().build();
-        if (intent.getParameters().getCity() != null) {
-            try {
-                var weather = weatherClient.getWeather(intent.getParameters().getCity(), "metric");
-                return new Event("weather",eventResponse.setContent(FormatTextUtil.getInstance().formatWeatherResponse(weather.getBody())));
-            } catch (Exception e) {
-                return new Event("error",eventResponse.setContent( "Sorry, I couldn't fetch the weather for " + intent.getParameters().getCity() + ". Please try again."));
+        // Check for null intent, parameters, or city
+        if (intent == null || intent.getParameters() == null || intent.getParameters().getCity() == null) {
+            return new Event(Constants.ERROR, new EventResponse("Please specify a city for the weather query."));
+        }
+
+        String city = intent.getParameters().getCity();
+        try {
+            var weatherResponse = weatherClient.getWeather(city, "metric");
+            if (weatherResponse == null || weatherResponse.getBody() == null) {
+                return new Event(Constants.ERROR, new EventResponse("No weather data found for city: " + city));
             }
-        } else {
-            return new Event("error", eventResponse.setContent( "Please specify a city for the weather query."));
+            return new Event(Constants.WEATHER, new EventResponse(FormatTextUtil.getInstance().formatWeatherResponse(weatherResponse.getBody())));
+        } catch (RuntimeException e) {
+            return new Event(Constants.ERROR, new EventResponse("Failed to fetch weather for " + city + ": " + e.getMessage()));
         }
     }
 }

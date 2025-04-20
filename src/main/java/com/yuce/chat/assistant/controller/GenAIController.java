@@ -39,8 +39,8 @@ public class GenAIController {
 
         // Option 1: Send a single event with specific name and data
         var sseEvent = ServerSentEvent.<EventResponse>builder()
-                .event(result.getType()) // Explicitly set the event name
-                .data(result.getEventResponse()) // Set the data
+                .event(result.type()) // Explicitly set the event name
+                .data(result.eventResponse()) // Set the data
                 // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
                 // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
                 .build();
@@ -52,13 +52,13 @@ public class GenAIController {
     }
 
 
-    @PostMapping(value = "/ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
         var result = chatService.callTools(iChatMessage);
         // Option 1: Send a single event with specific name and data
         var sseEvent = ServerSentEvent.<EventResponse>builder()
-                .event(result.getType()) // Explicitly set the event name
-                .data(result.getEventResponse()) // Set the data
+                .event(result.type()) // Explicitly set the event name
+                .data(result.eventResponse()) // Set the data
                 // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
                 // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
                 .build();

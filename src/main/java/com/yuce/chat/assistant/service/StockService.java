@@ -24,16 +24,21 @@ public class StockService {
     }
 
     public Event getStockPrice(IntentResult intent) {
-        var eventResponse = EventResponse.builder().build();
-        if (intent.getParameters().getSymbol() != null) {
-            try {
-                var stock = stockClient.getStockPrice(intent.getParameters().getSymbol());
-                return new Event(STOCK, eventResponse.setContent(FormatTextUtil.getInstance().formatStockResponse(stock.getBody())));
-            } catch (Exception e) {
-                return new Event(ERROR, eventResponse.setContent("Sorry, I couldn't fetch the stock price for " + intent.getParameters().getSymbol() + ". Please try again."));
+        EventResponse eventResponse = new EventResponse(null); // Temporary placeholder
+
+        // Check if intent or parameters are null
+        if (intent == null || intent.getParameters() == null || intent.getParameters().getSymbol() == null) {
+            return new Event(ERROR, new EventResponse("Please specify a stock ticker symbol."));
+        }
+
+        try {
+            var stockResponse = stockClient.getStockPrice(intent.getParameters().getSymbol());
+            if (stockResponse == null || stockResponse.getBody() == null) {
+                return new Event(ERROR, new EventResponse("No stock data found for symbol: " + intent.getParameters().getSymbol()));
             }
-        } else {
-            return new Event(ERROR, eventResponse.setContent("Please specify a stock ticker symbol."));
+            return new Event(STOCK, new EventResponse(FormatTextUtil.getInstance().formatStockResponse(stockResponse.getBody())));
+        } catch (RuntimeException e) {
+            return new Event(ERROR, new EventResponse("Failed to fetch stock price for " + intent.getParameters().getSymbol() + ": " + e.getMessage()));
         }
     }
 
