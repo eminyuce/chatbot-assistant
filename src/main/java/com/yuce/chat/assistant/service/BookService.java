@@ -1,9 +1,9 @@
 package com.yuce.chat.assistant.service;
 
 import com.yuce.chat.assistant.model.Book;
-import com.yuce.chat.assistant.model.request.BookRequest;
 import com.yuce.chat.assistant.repo.BookRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +11,13 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class BookService {
 
     private final BookRepository bookRepository;
 
     @Tool(description = "Add a new book to the store")
-    public Book addBook(BookRequest request) {
-        Book book = new Book(0,request.title(), request.author(), request.year());
+    public Book addBook(Book book) {
         bookRepository.save(book);
         return book;
     }

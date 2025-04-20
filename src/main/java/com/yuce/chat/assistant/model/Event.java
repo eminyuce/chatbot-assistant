@@ -1,5 +1,18 @@
 package com.yuce.chat.assistant.model;
 
-public record Event(String type, String content) {
+import lombok.*;
+import lombok.experimental.Accessors;
+
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Accessors(chain = true)
+public class Event {
+    private String type;
+    private EventResponse eventResponse;
 }
 

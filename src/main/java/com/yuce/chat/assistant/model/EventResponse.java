@@ -1,6 +1,7 @@
 package com.yuce.chat.assistant.model;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 @Getter
 @Setter
@@ -9,8 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public  class IntentResult {
-        String intent;
-        Parameters parameters;
+@Accessors(chain = true)
+public class EventResponse {
+    String content;
 }
-

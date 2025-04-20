@@ -2,6 +2,7 @@ package com.yuce.chat.assistant.controller;
 
 
 import com.yuce.chat.assistant.model.Event;
+import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IChatMessage;
 import com.yuce.chat.assistant.service.ChatService;
 import com.yuce.chat.assistant.service.RecipeService;
@@ -29,17 +30,17 @@ public class GenAIController {
 
     @GetMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
     public Event getResponse(@RequestParam String prompt) {
-        return chatService.getResponseStream(prompt);
+        return chatService.getResponseStream(IChatMessage.builder().prompt(prompt).build());
     }
 
-    @GetMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public  ResponseEntity<Flux<ServerSentEvent<String>>> getResponseStream(@RequestParam String prompt) {
-        Event result = chatService.getResponseStream(prompt);
+  @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+  public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
+        Event result = chatService.getResponseStream(iChatMessage);
 
         // Option 1: Send a single event with specific name and data
-        var sseEvent = ServerSentEvent.<String>builder()
-                .event(result.type()) // Explicitly set the event name
-                .data(result.content()) // Set the data
+        var sseEvent = ServerSentEvent.<EventResponse>builder()
+                .event(result.getType()) // Explicitly set the event name
+                .data(result.getEventResponse()) // Set the data
                 // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
                 // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
                 .build();
@@ -52,12 +53,12 @@ public class GenAIController {
 
 
     @PostMapping(value = "/ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<Flux<ServerSentEvent<String>>> askAgent(@RequestBody IChatMessage iChatMessage) {
+    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
         var result = chatService.callTools(iChatMessage);
         // Option 1: Send a single event with specific name and data
-        var sseEvent = ServerSentEvent.<String>builder()
-                .event(result.type()) // Explicitly set the event name
-                .data(result.content()) // Set the data
+        var sseEvent = ServerSentEvent.<EventResponse>builder()
+                .event(result.getType()) // Explicitly set the event name
+                .data(result.getEventResponse()) // Set the data
                 // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
                 // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
                 .build();

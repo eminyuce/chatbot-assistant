@@ -9,4 +9,5 @@ public class Constants {
     public static final String CHAT = "chat";
     public static final String ERROR = "error";
 
+    public static final String BOOK = "BOOK";
 }

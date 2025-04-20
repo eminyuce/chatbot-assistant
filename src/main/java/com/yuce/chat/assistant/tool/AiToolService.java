@@ -1,8 +1,11 @@
 package com.yuce.chat.assistant.tool;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.feign.StockClient;
 import com.yuce.chat.assistant.feign.WeatherClient;
 import com.yuce.chat.assistant.model.Event;
+import com.yuce.chat.assistant.model.IntentResult;
 import com.yuce.chat.assistant.model.StockResponse;
 import com.yuce.chat.assistant.model.WeatherResponse;
 import com.yuce.chat.assistant.service.StockService;
@@ -17,32 +20,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-@Slf4j
 @Service
-@AllArgsConstructor
-public class AiToolService {
+public interface AiToolService {
+    Event getWeatherByCity(String city);
+    Event getStockPriceBySymbol(String symbol);
 
-    private final StockService stockService;
+    Event getWeather(IntentResult intent);
 
-    private final WeatherService weatherService;
+    Event getStockPrice(IntentResult intent);
 
-    @Tool(name = "getWeatherByCity", description = "Get the current weather for a given city")
-    public Event getWeatherByCity(@ToolParam(description = "city") String city)
-    {
-        if (!StringUtils.hasText(city)) {
-            log.error("Invalid request: city is required.");
-            return null;
-        }
-        return weatherService.getWeather(city);
-    }
-
-    @Tool(name = "getStockPriceBySymbol", description = "Get the current stock price for a given company symbol")
-    public Event getStockPriceBySymbol(@ToolParam(description = "symbol") String symbol)
-    {
-        if (!StringUtils.hasText(symbol)) {
-            log.error("Invalid request: symbol is required.");
-            return null;
-        }
-        return stockService.getStockPrice(symbol);
-    }
+    Event addBook(String title,
+                  String author,
+                  int year);
 }

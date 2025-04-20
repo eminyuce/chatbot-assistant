@@ -1,5 +1,6 @@
 package com.yuce.chat.assistant.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class RecipeService {
     private final ChatModel chatModel;
 
