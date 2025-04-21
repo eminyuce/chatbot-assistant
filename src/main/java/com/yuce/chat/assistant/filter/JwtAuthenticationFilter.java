@@ -5,11 +5,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
@@ -19,12 +21,12 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component
 @Slf4j
+@AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private JwtService jwtService;
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
@@ -40,15 +42,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         if (jwtService.validateToken(token)) {
             String username = jwtService.getUsernameFromToken(token); // must validate token here
-            System.out.println("Authentication set for user: " + username);
-
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                List<String> roles = jwtService.getRolesFromToken(token);
-                List<SimpleGrantedAuthority> authorities = roles.stream()
-                        .map(SimpleGrantedAuthority::new)
-                        .collect(Collectors.toList());
 
-                var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
+                var userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication = null;
+                if (userDetails.getUsername().equals("angular-user") || userDetails.getUsername().equals("admin-user")) {
+                    List<String> roles = jwtService.getRolesFromToken(token);
+                    List<SimpleGrantedAuthority> authorities = roles.stream()
+                            .map(SimpleGrantedAuthority::new)
+                            .collect(Collectors.toList());
+                    authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
+                            authorities);
+                } else {
+                    authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
+                            userDetails.getAuthorities());
+                }
+
                 var requestAttributeSecurityContextRepository = new RequestAttributeSecurityContextRepository();
                 var securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authentication);

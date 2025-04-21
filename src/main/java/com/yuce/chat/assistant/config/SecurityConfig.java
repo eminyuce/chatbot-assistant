@@ -2,6 +2,9 @@ package com.yuce.chat.assistant.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.filter.JwtAuthenticationFilter;
+import com.yuce.chat.assistant.persistence.repository.UserRepository;
+import com.yuce.chat.assistant.service.CustomUserDetailsService;
+import com.yuce.chat.assistant.service.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,11 +19,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -38,7 +39,9 @@ import java.util.Map;
 @Slf4j
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final UserRepository userRepository;
+    private final JwtService jwtService;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -51,7 +54,7 @@ public class SecurityConfig {
                 )
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService,userDetailsService()), UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(this::commence));
 
         return http.build();
@@ -84,20 +87,9 @@ public class SecurityConfig {
 
     @Bean
     public UserDetailsService userDetailsService() {
-        var user = User.builder()
-                .username("angular-user")
-                .password(passwordEncoder().encode("angular-pass"))
-                .roles("ANGULAR")
-                .build();
-
-        var admin = User.builder()
-                .username("admin-user")
-                .password(passwordEncoder().encode("admin-pass"))
-                .roles("ANGULAR", "ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(user, admin);
+        return new CustomUserDetailsService(userRepository, passwordEncoder());
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
