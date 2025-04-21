@@ -37,32 +37,27 @@ public class GenAIController {
     }
 
 
-    //@PreAuthorize("hasRole('ANGULAR')")
+    @PreAuthorize("hasRole('ANGULAR')")
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
 
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANGULAR"))) {
-            // Return an error response immediately
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Flux.just(ServerSentEvent.<EventResponse>builder()
-                            .event("error")
-                            .data(new EventResponse("Access Denied: User does not have ROLE_ANGULAR"))
-                            .build()));
-        }
+        Event event = chatService.getResponseStream(iChatMessage);
 
-
-        Flux<ServerSentEvent<EventResponse>> stream = Mono.fromCallable(() -> chatService.getResponseStream(iChatMessage))
-                .flatMapMany(result -> {
-                    var sseEvent = ServerSentEvent.<EventResponse>builder()
-                            .event(result.type())
-                            .data(result.eventResponse())
-                            .build();
-                    return Flux.just(sseEvent);
-                })
+        Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
+                .map(result -> ServerSentEvent.<EventResponse>builder()
+                        .event(result.type())
+                        .data(result.eventResponse())
+                        .build())
+                .onErrorResume(throwable -> Flux.just(
+                        ServerSentEvent.<EventResponse>builder()
+                                .event("error")
+                                .data(new EventResponse("Error: " + throwable.getMessage()))
+                                .build()))
                 .delayElements(Duration.ofMillis(50));
 
-        return ResponseEntity.ok(stream);
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(stream);
     }
 
     @PreAuthorize("hasRole('ANGULAR')")
