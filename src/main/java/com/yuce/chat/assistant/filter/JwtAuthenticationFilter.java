@@ -5,10 +5,13 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -17,11 +20,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtService jwtService;
-
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -33,25 +36,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-        System.out.println("JWT Filter hit - Authorization Header: " + authHeader);
-
         String token = authHeader.substring(7);
-        String username = jwtService.getUsernameFromToken(token); // must validate token here
-        System.out.println("Authentication set for user: " + username);
+        if(jwtService.validateToken(token)){
+            String username = jwtService.getUsernameFromToken(token); // must validate token here
+            System.out.println("Authentication set for user: " + username);
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            List<String> roles = jwtService.getRolesFromToken(token);
-            List<SimpleGrantedAuthority> authorities = roles.stream()
-                    .map(SimpleGrantedAuthority::new)
-                    .collect(Collectors.toList());
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                List<String> roles = jwtService.getRolesFromToken(token);
+                List<SimpleGrantedAuthority> authorities = roles.stream()
+                        .map(SimpleGrantedAuthority::new)
+                        .collect(Collectors.toList());
 
-            UsernamePasswordAuthenticationToken authToken =
-                    new UsernamePasswordAuthenticationToken(username, null, authorities);
+                var authentication = new UsernamePasswordAuthenticationToken(username, null,                        authorities);
+                var requestAttributeSecurityContextRepository = new RequestAttributeSecurityContextRepository();
+                var securityContext = SecurityContextHolder.createEmptyContext();
+                securityContext.setAuthentication(authentication);
+                requestAttributeSecurityContextRepository.saveContext(securityContext, request, response);
 
-            SecurityContextHolder.getContext().setAuthentication(authToken);
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
+        }else{
+            log.error("JWT token is not valid");
         }
-
         filterChain.doFilter(request, response);
     }
+
 }
