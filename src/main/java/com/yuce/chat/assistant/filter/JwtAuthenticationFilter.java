@@ -5,33 +5,28 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
-@AllArgsConstructor
+@Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
@@ -39,37 +34,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-        String token = authHeader.substring(7);
-        if (jwtService.validateToken(token)) {
-            String username = jwtService.getUsernameFromToken(token); // must validate token here
+
+        try {
+            String token = authHeader.substring(7);
+            if (!jwtService.validateToken(token)) {
+                log.warn("Invalid JWT token for request: {}", request.getRequestURI());
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String username = jwtService.getUsernameFromToken(token);
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                var userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = null;
-                if (userDetails.getUsername().equals("angular-user") || userDetails.getUsername().equals("admin-user")) {
-                    List<String> roles = jwtService.getRolesFromToken(token);
-                    List<SimpleGrantedAuthority> authorities = roles.stream()
-                            .map(SimpleGrantedAuthority::new)
-                            .collect(Collectors.toList());
-                    authentication = new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null,
-                            authorities);
-                } else {
-                    authentication = new UsernamePasswordAuthenticationToken(userDetails, null,
-                            userDetails.getAuthorities());
-                }
-
-                var requestAttributeSecurityContextRepository = new RequestAttributeSecurityContextRepository();
-                var securityContext = SecurityContextHolder.createEmptyContext();
-                securityContext.setAuthentication(authentication);
-                requestAttributeSecurityContextRepository.saveContext(securityContext, request, response);
-
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails.getUsername(), null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        } else {
-            log.error("JWT token is not valid");
+        } catch (Exception e) {
+            log.error("Error processing JWT token: {}", e.getMessage());
         }
+
         filterChain.doFilter(request, response);
     }
-
 }

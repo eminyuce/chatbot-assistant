@@ -2,10 +2,10 @@ package com.yuce.chat.assistant.tool.impl;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuce.chat.assistant.model.Book;
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.persistence.entity.Book;
 import com.yuce.chat.assistant.service.BookService;
 import com.yuce.chat.assistant.service.StockService;
 import com.yuce.chat.assistant.service.WeatherService;

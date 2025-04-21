@@ -21,8 +21,14 @@ management:
 
 logging:
   level:
+    com:
+      yuce:
+        chat:
+          assistant: DEBUG
     org:
-      springframework: DEBUG
+      springframework:
+        aop: DEBUG
+        security: TRACE
 
 feign:
   client:
