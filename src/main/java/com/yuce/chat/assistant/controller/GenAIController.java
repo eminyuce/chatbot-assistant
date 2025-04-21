@@ -8,16 +8,12 @@ import com.yuce.chat.assistant.service.ChatService;
 import com.yuce.chat.assistant.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -41,6 +37,16 @@ public class GenAIController {
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
 
+//        var auth = SecurityContextHolder.getContext().getAuthentication();
+//        if (auth == null || !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANGULAR"))) {
+//            // Return an error response immediately
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+//                    .body(Flux.just(ServerSentEvent.<EventResponse>builder()
+//                            .event("error")
+//                            .data(new EventResponse("Access Denied: User does not have ROLE_ANGULAR"))
+//                            .build()));
+//        }
+
         Event event = chatService.getResponseStream(iChatMessage);
 
         Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
@@ -53,11 +59,9 @@ public class GenAIController {
                                 .event("error")
                                 .data(new EventResponse("Error: " + throwable.getMessage()))
                                 .build()))
-                .delayElements(Duration.ofMillis(50));
+                .delayElements(Duration.ofMillis(1));
 
-        return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_EVENT_STREAM)
-                .body(stream);
+        return ResponseEntity.ok(stream);
     }
 
     @PreAuthorize("hasRole('ANGULAR')")

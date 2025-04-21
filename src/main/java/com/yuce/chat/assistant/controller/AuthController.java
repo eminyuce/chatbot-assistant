@@ -3,6 +3,8 @@ package com.yuce.chat.assistant.controller;
 import com.yuce.chat.assistant.model.AuthRequest;
 import com.yuce.chat.assistant.model.AuthResponse;
 import com.yuce.chat.assistant.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
@@ -24,7 +26,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping(value = "/login-angular", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest, HttpServletRequest request, HttpServletResponse response) {
         log.info("Login attempt for user: {}", authRequest.getUsername());
         // In a real application, you would validate credentials against a database
         try {
@@ -34,7 +36,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                String jwtToken = jwtService.generateTokenAngularRole(authRequest.getUsername());
+                String jwtToken = jwtService.generateTokenAngularRole(authRequest);
                 return ResponseEntity.ok(new AuthResponse(jwtToken));
             } else {
                 return ResponseEntity.badRequest().body(new AuthResponse(null));
