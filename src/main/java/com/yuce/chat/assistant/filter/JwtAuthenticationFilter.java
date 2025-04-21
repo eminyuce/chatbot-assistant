@@ -25,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtService jwtService;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -37,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         String token = authHeader.substring(7);
-        if(jwtService.validateToken(token)){
+        if (jwtService.validateToken(token)) {
             String username = jwtService.getUsernameFromToken(token); // must validate token here
             System.out.println("Authentication set for user: " + username);
 
@@ -47,7 +48,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-                var authentication = new UsernamePasswordAuthenticationToken(username, null,                        authorities);
+                var authentication = new UsernamePasswordAuthenticationToken(username, null, authorities);
                 var requestAttributeSecurityContextRepository = new RequestAttributeSecurityContextRepository();
                 var securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authentication);
@@ -56,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
-        }else{
+        } else {
             log.error("JWT token is not valid");
         }
         filterChain.doFilter(request, response);

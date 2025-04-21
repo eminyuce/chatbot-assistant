@@ -37,16 +37,6 @@ public class GenAIController {
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
 
-//        var auth = SecurityContextHolder.getContext().getAuthentication();
-//        if (auth == null || !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANGULAR"))) {
-//            // Return an error response immediately
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-//                    .body(Flux.just(ServerSentEvent.<EventResponse>builder()
-//                            .event("error")
-//                            .data(new EventResponse("Access Denied: User does not have ROLE_ANGULAR"))
-//                            .build()));
-//        }
-
         Event event = chatService.getResponseStream(iChatMessage);
 
         Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
