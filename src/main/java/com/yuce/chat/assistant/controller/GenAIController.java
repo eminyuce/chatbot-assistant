@@ -8,12 +8,16 @@ import com.yuce.chat.assistant.service.ChatService;
 import com.yuce.chat.assistant.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
@@ -33,21 +37,30 @@ public class GenAIController {
     }
 
 
-    @PreAuthorize("hasRole('ANGULAR')")
+    //@PreAuthorize("hasRole('ANGULAR')")
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
-        Event result = chatService.getResponseStream(iChatMessage);
 
-        // Option 1: Send a single event with specific name and data
-        var sseEvent = ServerSentEvent.<EventResponse>builder()
-                .event(result.type()) // Explicitly set the event name
-                .data(result.eventResponse()) // Set the data
-                // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
-                // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
-                .build();
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ANGULAR"))) {
+            // Return an error response immediately
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Flux.just(ServerSentEvent.<EventResponse>builder()
+                            .event("error")
+                            .data(new EventResponse("Access Denied: User does not have ROLE_ANGULAR"))
+                            .build()));
+        }
 
-        var stream = Flux.just(sseEvent)
-                .delayElements(Duration.ofMillis(50)); // Small delay helps ensure stream nature
+
+        Flux<ServerSentEvent<EventResponse>> stream = Mono.fromCallable(() -> chatService.getResponseStream(iChatMessage))
+                .flatMapMany(result -> {
+                    var sseEvent = ServerSentEvent.<EventResponse>builder()
+                            .event(result.type())
+                            .data(result.eventResponse())
+                            .build();
+                    return Flux.just(sseEvent);
+                })
+                .delayElements(Duration.ofMillis(50));
 
         return ResponseEntity.ok(stream);
     }
