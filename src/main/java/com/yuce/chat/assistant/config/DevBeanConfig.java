@@ -31,6 +31,7 @@ public class DevBeanConfig {
                 .ollamaApi(new OllamaApi(ollamaBaseUrl))
                 .build();
     }
+
     @Bean
     public ChatClient chatClient(ChatModel chatModel) {
         return ChatClient.builder(chatModel).build();

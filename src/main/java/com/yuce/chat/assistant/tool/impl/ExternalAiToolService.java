@@ -1,7 +1,6 @@
 package com.yuce.chat.assistant.tool.impl;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.model.Book;
 import com.yuce.chat.assistant.model.Event;
@@ -33,25 +32,25 @@ public class ExternalAiToolService implements AiToolService {
 
     @Tool(name = "getWeatherByCity", description = "Get the current weather for a given city")
     @Override
-    public Event getWeatherByCity(@ToolParam(description = "city") String city)  {
+    public Event getWeatherByCity(@ToolParam(description = "city") String city) {
         if (!StringUtils.hasText(city)) {
             log.error("Invalid request: city is required.");
             return null;
         }
 
-            return weatherService.getWeather(city);
+        return weatherService.getWeather(city);
 
     }
 
     @Tool(name = "getStockPriceBySymbol", description = "Get the current stock price for a given company symbol")
     @Override
-    public Event getStockPriceBySymbol(@ToolParam(description = "symbol") String symbol)   {
+    public Event getStockPriceBySymbol(@ToolParam(description = "symbol") String symbol) {
         if (!StringUtils.hasText(symbol)) {
             log.error("Invalid request: symbol is required.");
             return null;
         }
 
-            return stockService.getStockPrice(symbol);
+        return stockService.getStockPrice(symbol);
 
     }
 
@@ -59,8 +58,8 @@ public class ExternalAiToolService implements AiToolService {
     @Tool(name = "addBook", description = "Add A book to Database")
     @Override
     public Event addBook(@ToolParam(description = "title") String title,
-                          @ToolParam(description = "author") String author,
-                          @ToolParam(description = "year") int year)   {
+                         @ToolParam(description = "author") String author,
+                         @ToolParam(description = "year") int year) {
 
         var book = bookService.addBook(Book.builder().author(author).year(year).title(title).build());
         return Event.builder().type(Constants.BOOK).eventResponse(EventResponse.builder().content(book.toString()).build()).build();

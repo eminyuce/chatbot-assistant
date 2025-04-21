@@ -11,13 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
-import java.util.Map;
 
-@CrossOrigin(origins = "http://localhost:4200", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.HEAD, RequestMethod.DELETE, RequestMethod.OPTIONS, RequestMethod.PATCH, RequestMethod.PUT, RequestMethod.TRACE})
 @RestController
 @RequestMapping("/gen-ai")
 @Slf4j
@@ -33,8 +32,10 @@ public class GenAIController {
         return chatService.getResponseStream(IChatMessage.builder().prompt(prompt).build());
     }
 
-  @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-  public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
+
+    @PreAuthorize("hasRole('ANGULAR')")
+    @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
         Event result = chatService.getResponseStream(iChatMessage);
 
         // Option 1: Send a single event with specific name and data
@@ -51,7 +52,7 @@ public class GenAIController {
         return ResponseEntity.ok(stream);
     }
 
-
+    @PreAuthorize("hasRole('ANGULAR')")
     @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
         var result = chatService.callTools(iChatMessage);

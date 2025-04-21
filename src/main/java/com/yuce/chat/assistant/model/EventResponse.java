@@ -1,7 +1,6 @@
 package com.yuce.chat.assistant.model;
 
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.Builder;
 
 @Builder
 public record EventResponse(String content) {

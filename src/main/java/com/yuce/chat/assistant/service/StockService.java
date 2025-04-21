@@ -10,7 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import static com.yuce.chat.assistant.util.Constants.*;
+import static com.yuce.chat.assistant.util.Constants.ERROR;
+import static com.yuce.chat.assistant.util.Constants.STOCK;
 
 @Service
 @Slf4j

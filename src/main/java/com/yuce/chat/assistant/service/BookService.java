@@ -21,6 +21,7 @@ public class BookService {
         bookRepository.save(book);
         return book;
     }
+
     @Tool(description = "Find a book by its title")
     public Book findBookByName(String title) {
         return bookRepository.findByTitle(title);

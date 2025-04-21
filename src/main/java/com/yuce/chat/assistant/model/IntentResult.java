@@ -9,8 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public  class IntentResult {
-        String intent;
-        Parameters parameters;
+public class IntentResult {
+    String intent;
+    Parameters parameters;
 }
 

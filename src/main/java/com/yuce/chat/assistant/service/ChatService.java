@@ -2,8 +2,6 @@ package com.yuce.chat.assistant.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuce.chat.assistant.feign.StockClient;
-import com.yuce.chat.assistant.feign.WeatherClient;
 import com.yuce.chat.assistant.model.*;
 import com.yuce.chat.assistant.tool.AiToolService;
 import lombok.extern.slf4j.Slf4j;
@@ -19,23 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yuce.chat.assistant.feign.StockClient;
-import com.yuce.chat.assistant.feign.WeatherClient;
-import com.yuce.chat.assistant.model.Event;
-import com.yuce.chat.assistant.model.IntentResult;
-import com.yuce.chat.assistant.model.StockResponse;
-import com.yuce.chat.assistant.model.WeatherResponse;
-import com.yuce.chat.assistant.tool.AiToolService;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.messages.SystemMessage;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.prompt.Prompt;
-import com.yuce.chat.assistant.util.FormatTextUtil;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -95,8 +77,9 @@ public class ChatService {
             return new IntentResult("general", new Parameters(null, null));
         }
     }
+
     public Event callTools(IChatMessage iChatMessage) {
-        try{
+        try {
             UserMessage userMessage = new UserMessage(iChatMessage.getPrompt());
             final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
             var result = chatClient
@@ -105,14 +88,14 @@ public class ChatService {
                     .call()
                     .content(); // Get raw String response
             //  return parseStringToEvent(result); // Custom parsing logic
-             return new Event("UNKNOWN",EventResponse.builder().content(result).build());
+            return new Event("UNKNOWN", EventResponse.builder().content(result).build());
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);
         }
     }
 
     public Event callTools_v2(IChatMessage iChatMessage) {
-        try{
+        try {
             UserMessage userMessage = new UserMessage(iChatMessage.getPrompt());
             final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
             ResponseEntity<ChatResponse, Event> result = chatClient
@@ -120,8 +103,8 @@ public class ChatService {
                     .tools(aiToolService) // Auto-detects @Tool-annotated methods
                     .call()
                     .responseEntity(Event.class); // Get raw String response
-           //  return parseStringToEvent(result); // Custom parsing logic
-           // return new Event("UNKNOWN",result);
+            //  return parseStringToEvent(result); // Custom parsing logic
+            // return new Event("UNKNOWN",result);
             return result.entity();
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);
@@ -129,7 +112,7 @@ public class ChatService {
     }
 
     private Event parseStringToEvent(String result) throws JsonProcessingException {
-        return objectMapper.readValue(result,Event.class);
+        return objectMapper.readValue(result, Event.class);
     }
 
 }

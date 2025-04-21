@@ -6,9 +6,10 @@ import com.yuce.chat.assistant.model.WeatherResponse;
 public class FormatTextUtil {
     private static FormatTextUtil instance = new FormatTextUtil();
 
-    public static FormatTextUtil getInstance(){
+    public static FormatTextUtil getInstance() {
         return instance;
     }
+
     public String formatWeatherResponse(WeatherResponse weather) {
         return String.format(
                 "The weather in %s is %.1f°C with %d%% humidity.",

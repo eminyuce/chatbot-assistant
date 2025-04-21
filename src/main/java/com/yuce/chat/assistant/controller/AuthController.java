@@ -1,0 +1,47 @@
+package com.yuce.chat.assistant.controller;
+
+import com.yuce.chat.assistant.model.AuthRequest;
+import com.yuce.chat.assistant.model.AuthResponse;
+import com.yuce.chat.assistant.service.JwtService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/auth")
+@Slf4j
+@AllArgsConstructor
+public class AuthController {
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+
+    @PostMapping(value = "/login-angular", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+        log.info("Login attempt for user: {}", authRequest.getUsername());
+        // In a real application, you would validate credentials against a database
+        try {
+
+            // Authenticate user against hardcoded credentials
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
+            );
+            if (authentication.isAuthenticated()) {
+                String jwtToken = jwtService.generateTokenAngularRole(authRequest.getUsername());
+                return ResponseEntity.ok(new AuthResponse(jwtToken));
+            } else {
+                return ResponseEntity.badRequest().body(new AuthResponse(null));
+            }
+        } catch (Exception e) {
+            log.error("Login failed for user: {}", authRequest.getUsername(), e);
+            return ResponseEntity.badRequest().body(new AuthResponse(null));
+        }
+    }
+}

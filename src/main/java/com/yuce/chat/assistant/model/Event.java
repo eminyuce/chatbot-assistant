@@ -1,6 +1,6 @@
 package com.yuce.chat.assistant.model;
 
-import lombok.*;
+import lombok.Builder;
 import lombok.experimental.Accessors;
 
 @Builder
