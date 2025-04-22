@@ -55,6 +55,8 @@ public class ChatService {
                 return aiToolService.createRecipe(intent);
             case BOOK:
                 return aiToolService.bookOperation(intent);
+            case ERROR:
+                return Event.builder().eventResponse(EventResponse.builder().content("LLM Model returns error.").build()).build();
             default:
                 return getPromptCall(iChatMessage.getPrompt());
         }
@@ -95,7 +97,7 @@ public class ChatService {
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
             log.error("Detecting intention error",e);
-            return new IntentResult("general", "", new Parameters());
+            return new IntentResult("error", "", new Parameters());
         }
     }
 
