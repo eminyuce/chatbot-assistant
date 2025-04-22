@@ -38,7 +38,7 @@ public class ChatService {
     private Resource intentMessageResource;
 
     @Autowired
-    @Qualifier("static")
+    @Qualifier("static-services")
     private AiToolService aiToolService;
 
     @Autowired
