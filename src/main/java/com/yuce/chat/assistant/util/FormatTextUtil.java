@@ -3,6 +3,14 @@ package com.yuce.chat.assistant.util;
 import com.yuce.chat.assistant.model.StockResponse;
 import com.yuce.chat.assistant.model.WeatherResponse;
 import com.yuce.chat.assistant.persistence.entity.Book;
+import com.yuce.chat.assistant.persistence.entity.Drug;
+import com.yuce.chat.assistant.persistence.entity.UserEntity;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class FormatTextUtil {
     private static FormatTextUtil instance = new FormatTextUtil();
@@ -35,6 +43,35 @@ public class FormatTextUtil {
     }
 
 
+
+    public static String formatUsersResponse(List<UserEntity> users) {
+        if (users == null || users.isEmpty()) {
+            return "No users found.";
+        }
+
+        long totalUsers = users.size();
+
+        Map<String, Long> roleCounts = users.stream()
+                .flatMap(user -> Arrays.stream(user.getRoles().split(",")))
+                .map(String::trim)
+                .collect(Collectors.groupingBy(String::toString, Collectors.counting()));
+
+        Set<String> allRoles = roleCounts.keySet();
+        long differentRoleCount = allRoles.size();
+
+        String roleCountDetails = roleCounts.entrySet().stream()
+                .map(entry -> String.format("%d user(s) is/are %s", entry.getValue(), entry.getKey()))
+                .collect(Collectors.joining("\n"));
+
+        String userDetails = users.stream()
+                .map(user -> String.format("Username: %s, Roles: %s", user.getUsername(), user.getRoles()))
+                .collect(Collectors.joining("\n"));
+
+        return String.format("Total users: %d\nDifferent roles: %d\n\nRole Counts:\n%s\n\nUser Details:\n%s",
+                totalUsers, differentRoleCount, roleCountDetails, userDetails);
+    }
+
+
     public String formatWeatherResponse(WeatherResponse weather) {
         return String.format(
                 "The weather in %s is %.1f°C with %d%% humidity.",
@@ -50,5 +87,9 @@ public class FormatTextUtil {
                 stock.getGlobalQuote().getSymbol(),
                 stock.getGlobalQuote().getPrice()
         );
+    }
+
+    public String formatDrugResponse(Drug findDrug) {
+        return findDrug.toString();
     }
 }

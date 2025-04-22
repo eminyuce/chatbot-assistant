@@ -3,6 +3,8 @@ package com.yuce.chat.assistant.model;
 
 import lombok.*;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -20,4 +22,5 @@ public class IChatMessage {
     private String prompt;
     private ChatRole role;
     private String timestamp;
+    private List<String> chatBotRoles;
 }

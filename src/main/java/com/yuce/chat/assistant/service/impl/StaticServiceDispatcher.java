@@ -101,5 +101,20 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     public Event createRecipe(IntentResult intent) {
         return recipeService.createRecipeStatic(intent);
     }
+
+    @Override
+    public Event getDrugInformation(IntentResult intent) {
+        return Event.builder()
+                .type(Constants.BOOK)
+                .eventResponse(EventResponse.builder()
+                        .content("Drug Information:"+intent.getParameters().getDrugName())
+                        .build())
+                .build();
+    }
+
+    @Override
+    public Event getChatBotUsers(IntentResult intent) {
+        return null;
+    }
 }
 

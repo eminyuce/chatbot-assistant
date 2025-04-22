@@ -17,4 +17,8 @@ public interface ServiceDispatcher {
     Event bookOperation(IntentResult intent);
 
     Event createRecipe(IntentResult intent);
+
+    Event getDrugInformation(IntentResult intent);
+
+    Event getChatBotUsers(IntentResult intent);
 }

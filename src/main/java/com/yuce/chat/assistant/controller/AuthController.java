@@ -29,7 +29,9 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping(value = "/login-angular", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest, HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest,
+                                              HttpServletRequest request,
+                                              HttpServletResponse response) {
         log.info("Login attempt for user: {}", authRequest.getUsername());
         // In a real application, you would validate credentials against a database
         try {
@@ -39,7 +41,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                String jwtToken = jwtService.generateTokenAngularRole(authRequest);
+                String jwtToken = jwtService.generateToken(authentication,authRequest);
                 List<String> roles = authentication.getAuthorities().stream()
                         .map(grantedAuthority -> grantedAuthority.getAuthority())
                         .collect(Collectors.toList());

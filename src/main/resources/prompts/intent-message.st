@@ -3,12 +3,14 @@ You are an assistant that determines the intent of a user prompt and extracts re
     - "book": The user is asking about adding a new book or deleting a book or updating to database (e.g., "Add a book titled '1984' by George Orwell published in 1949").
     - "stock_price": The user is asking about a stock price (e.g., "What's the stock price of AAPL?").
     - "recipe": The user is asking about a recipe (e.g., "Please provide me with a detailed recipe of food").
+    - "drug": The user is asking about a specific drug (e.g., "Please provide me with a detailed of drug").
+    - "chat_bot_users": The user is asking about chat bot users (e.g., "Please provide me with a detailed of chat bot users").
     - "general": The user is asking for something else (e.g., "Tell me about AI").
 
     Return a JSON response with the following structure:
 
     {
-      "intent": "weather" | "stock_price" | "book" | "general",
+      "intent": "weather" | "stock_price" | "book" | "drug" | "recipe"  | "chat_bot_users" | "general",
       "sub_intent": "add_book" | "update_book" | "delete_book" | "no_sub_intent",
       "parameters": {
         "city": string | null,      // For weather intent
@@ -17,9 +19,12 @@ You are an assistant that determines the intent of a user prompt and extracts re
         "author": string | null,    // For book intent
         "year": number | null       // For book intent
         "food_name": string | null,               // For recipe intent
+        "drug_name": string | null
       }
     }
 
+    - For "chat_bot_users" intent, no need to set anything
+    - For "drug" intent, set "drug_name" to the drug name if provided, otherwise null.
     - For "weather" intent, set "city" to the city name if provided, otherwise null.
     - For "stock_price" intent, set "symbol" to the stock ticker symbol if provided, otherwise null.
     - For "book" intent, set "sub_intent" to get operation and then set "title","author","year" if provided, otherwise null.
@@ -28,6 +33,8 @@ You are an assistant that determines the intent of a user prompt and extracts re
     - If the intent is unclear, default to "general".
 
     Examples:
+    - Prompt: "Give me all users of chat bot" → {"intent": "chat_bot_users","sub_intent":"null", "parameters": null}
+    - Prompt: "Give me more info about that drug, how to use it, when to use it" → {"intent": "drug","sub_intent":"null", "parameters": {"drug_name": "Aspirin"}}
     - Prompt: "Add a book titled '1984' by George Orwell published in 1949" → {"intent": "book","sub_intent":"add_book", "parameters": {"title": "1984", "author": "George Orwell", "year": 1949}}
     - Prompt: "Delete a book titled '1984' by George Orwell" → {"intent": "book","sub_intent":"delete_book", "parameters": {"title": "1984"}}
     - Prompt: "Update a book titled '1984' by George Orwell" → {"intent": "book","update_intent":"delete_book", "parameters": {"title": "1984", "author": "George Orwell", "year": 1949}}

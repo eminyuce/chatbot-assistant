@@ -41,10 +41,14 @@ public class ChatService {
     private ObjectMapper objectMapper;
 
     public Event getResponseStream(IChatMessage iChatMessage) {
-        IntentResult intent = detectIntent(iChatMessage.getPrompt());
+        IntentResult intent = detectIntent(iChatMessage);
         switch (intent.getIntent()) {
             case WEATHER:
                 return serviceDispatcher.getWeather(intent);
+            case DRUG:
+                return serviceDispatcher.getDrugInformation(intent);
+            case CHAT_BOT_USERS:
+                return serviceDispatcher.getChatBotUsers(intent);
             case STOCK_PRICE:
                 return serviceDispatcher.getStockPrice(intent);
             case RECIPE:
@@ -54,29 +58,31 @@ public class ChatService {
             case ERROR:
                 return Event.builder().eventResponse(EventResponse.builder().content("LLM Model returns error.").build()).build();
             default:
-                return getPromptCall(iChatMessage.getPrompt());
+                return getPromptCall(iChatMessage);
         }
     }
 
-    private Event getPromptCall(String prompt) {
+    private Event getPromptCall(IChatMessage iChatMessage) {
         try {
-            String response = chatModel.call(prompt);
+            String response = chatModel.call(iChatMessage.getPrompt());
             return new Event(CHAT, EventResponse.builder().content(response).build());
         } catch (Exception e) {
             return new Event(CHAT, EventResponse.builder().content(e.getMessage()).build());
         }
     }
 
-    private IntentResult detectIntent(String prompt) {
+    private IntentResult detectIntent(IChatMessage iChatMessage) {
         try {
             Prompt intentPrompt = new Prompt(List.of(
                     new SystemMessage(intentMessageResource),
-                    new UserMessage(prompt)
+                    new UserMessage(iChatMessage.getPrompt())
             ));
             String rawJsonResponse = chatModel.call(intentPrompt).getResult().getOutput().getText();
             String jsonResponse = JsonExtractor.extractJson(rawJsonResponse);
 
-            return objectMapper.readValue(jsonResponse, IntentResult.class);
+            var result =  objectMapper.readValue(jsonResponse, IntentResult.class);
+            result.setIChatMessage(iChatMessage);
+            return result;
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
             log.error("Detecting intention error", e);

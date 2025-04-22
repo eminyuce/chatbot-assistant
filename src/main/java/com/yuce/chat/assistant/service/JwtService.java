@@ -4,7 +4,11 @@ import com.yuce.chat.assistant.model.AuthRequest;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.netty.util.internal.StringUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.internal.util.Lists;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
@@ -12,6 +16,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -21,12 +26,15 @@ public class JwtService {
     private static final long EXPIRATION_TIME = 864_000_000; // 10 days in milliseconds
     private static final String ROLE_ANGULAR = "ROLE_ANGULAR";
 
-    public String generateTokenAngularRole(AuthRequest authRequest) {
+    public String generateToken(Authentication authentication, AuthRequest authRequest) {
         Duration expiryDate = authRequest.isRememberMe()
                 ? Duration.ofDays(14) // 2 weeks
                 : Duration.ofHours(1); // default 1 hour
         // Use expiry to set expiration in your claims (e.g., via io.jsonwebtoken)
-        return generateToken(authRequest.getUsername(), Collections.singletonList(ROLE_ANGULAR), expiryDate);
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(grantedAuthority -> grantedAuthority.getAuthority())
+                .collect(Collectors.toList());
+        return generateToken(authRequest.getUsername(), roles, expiryDate);
     }
 
     public String generateToken(String username, List<String> roles, Duration expiry) {
@@ -52,7 +60,22 @@ public class JwtService {
                 .getBody()
                 .getSubject();
     }
-
+    // Helper method to get token from HTTP request
+    private String getTokenFromRequest() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getCredentials() == null) {
+            return null;  // No token found
+        }
+        return (String) authentication.getCredentials();  // Assuming the token is stored as credentials
+    }
+    public List<String> getRolesFromToken(HttpServletRequest request){
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return Collections.emptyList();
+        }
+        String token = authHeader.substring(7);
+        return this.getRolesFromToken(token);
+    }
     @SuppressWarnings("unchecked")
     public List<String> getRolesFromToken(String token) {
         return Jwts.parserBuilder()

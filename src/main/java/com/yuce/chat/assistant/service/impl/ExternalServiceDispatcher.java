@@ -24,11 +24,18 @@ public class ExternalServiceDispatcher implements ServiceDispatcher {
     private StockService stockService;
     @Autowired
     private WeatherService weatherService;
+
+    @Autowired
+    private DrugService drugService;
+
     @Autowired
     @Qualifier("book-service-database")
     private BookService bookService;
     @Autowired
     private RecipeService recipeService;
+
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
     @Override
     public Event getWeatherByCity(String city) {
@@ -64,6 +71,16 @@ public class ExternalServiceDispatcher implements ServiceDispatcher {
     @Override
     public Event createRecipe(IntentResult intent) {
         return recipeService.createRecipe(intent);
+    }
+
+    @Override
+    public Event getDrugInformation(IntentResult intent) {
+        return drugService.getDrugInformation(intent);
+    }
+
+    @Override
+    public Event getChatBotUsers(IntentResult intent) {
+        return userDetailsService.getChatBotUsers(intent);
     }
 
     @Override

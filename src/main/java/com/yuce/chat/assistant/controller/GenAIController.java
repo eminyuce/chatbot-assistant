@@ -5,7 +5,9 @@ import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IChatMessage;
 import com.yuce.chat.assistant.service.ChatService;
-import com.yuce.chat.assistant.service.RecipeService;
+import com.yuce.chat.assistant.service.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -27,6 +29,8 @@ public class GenAIController {
 
     @Autowired
     private ChatService chatService;
+    @Autowired
+    private JwtService jwtService;
 
     @PostMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Event> getResponse(@RequestBody IChatMessage iChatMessage) {
@@ -35,10 +39,12 @@ public class GenAIController {
     }
 
 
-    @PreAuthorize("hasRole('ANGULAR')")
+    @PreAuthorize("hasRole('ANGULAR') or hasRole('ADMIN')")
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage) {
-
+    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage,
+                                                                                  HttpServletRequest request,
+                                                                                  HttpServletResponse response) {
+        iChatMessage.setChatBotRoles(jwtService.getRolesFromToken(request));
         Event event = chatService.getResponseStream(iChatMessage);
 
         Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
@@ -56,7 +62,7 @@ public class GenAIController {
         return ResponseEntity.ok(stream);
     }
 
-    @PreAuthorize("hasRole('ANGULAR')")
+    @PreAuthorize("hasRole('ANGULAR') or hasRole('ADMIN')")
     @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
         var event = chatService.callTools(iChatMessage);

@@ -25,4 +25,7 @@ public class Parameters implements Serializable {
 
     @JsonProperty("food_name")
     String foodName;
+
+    @JsonProperty("drug_name")
+    String drugName;
 }
