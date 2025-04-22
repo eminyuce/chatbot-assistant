@@ -38,7 +38,7 @@ public class ChatService {
     private Resource intentMessageResource;
 
     @Autowired
-    @Qualifier("static-services")
+    @Qualifier("static")
     private AiToolService aiToolService;
 
     @Autowired
@@ -61,8 +61,12 @@ public class ChatService {
     }
 
     private Event getPromptCall(String prompt) {
-        String response = chatModel.call(prompt);
-        return new Event(CHAT, EventResponse.builder().content(response).build());
+        try {
+            String response = chatModel.call(prompt);
+            return new Event(CHAT, EventResponse.builder().content(response).build());
+        }catch (Exception e){
+            return new Event(CHAT, EventResponse.builder().content(e.getMessage()).build());
+        }
     }
 
     private IntentResult detectIntent(String prompt) {
@@ -90,6 +94,7 @@ public class ChatService {
             return new IntentResult(intent, subIntent, parameters);
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
+            log.error("Detecting intention error",e);
             return new IntentResult("general", "", new Parameters());
         }
     }
@@ -103,6 +108,8 @@ public class ChatService {
                     .tools(aiToolService) // Auto-detects @Tool-annotated methods
                     .call()
                     .responseEntity(Event.class); // Get raw String response
+            //  return parseStringToEvent(result); // Custom parsing logic
+            // return new Event("UNKNOWN",result);
             return result.entity();
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);

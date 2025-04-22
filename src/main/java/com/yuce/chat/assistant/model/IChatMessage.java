@@ -21,5 +21,5 @@ public class IChatMessage {
     private String content;
     private String prompt;
     private ChatRole role;
-    private LocalDateTime timestamp;
+    private String timestamp;
 }

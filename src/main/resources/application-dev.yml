@@ -24,15 +24,15 @@ spring:
       base-url: http://127.0.0.1:11434
       chat:
         options:
-          model: llama3.1:8b
+          model: gemma3:4b
           temperature: 0.3
         answer:
           options:
-            model: llama3.1:8b
+            model: gemma3:4b
             temperature: 0.4
         deterministic:
           options:
-            model: llama3.1:8b
+            model: gemma3:4b
             temperature: 0.0
     embedding:
       options:
