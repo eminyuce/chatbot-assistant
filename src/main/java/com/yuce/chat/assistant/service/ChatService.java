@@ -40,7 +40,8 @@ public class ChatService {
     @Qualifier("static")
     private AiToolService aiToolService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public Event getResponseStream(IChatMessage iChatMessage) {
         IntentResult intent = detectIntent(iChatMessage.getPrompt());
@@ -55,8 +56,12 @@ public class ChatService {
     }
 
     private Event getPromptCall(String prompt) {
-        String response = chatModel.call(prompt);
-        return new Event(CHAT, EventResponse.builder().content(response).build());
+        try {
+            String response = chatModel.call(prompt);
+            return new Event(CHAT, EventResponse.builder().content(response).build());
+        }catch (Exception e){
+            return new Event(CHAT, EventResponse.builder().content(e.getMessage()).build());
+        }
     }
 
     private IntentResult detectIntent(String prompt) {
@@ -74,6 +79,7 @@ public class ChatService {
             return new IntentResult(intent, new Parameters(city, symbol));
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
+            log.error("Detecting intention error",e);
             return new IntentResult("general", new Parameters(null, null));
         }
     }
