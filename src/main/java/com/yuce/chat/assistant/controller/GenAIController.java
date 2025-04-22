@@ -27,8 +27,6 @@ public class GenAIController {
 
     @Autowired
     private ChatService chatService;
-    @Autowired
-    private RecipeService recipeService;
 
     @PostMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Event> getResponse(@RequestBody IChatMessage iChatMessage) {

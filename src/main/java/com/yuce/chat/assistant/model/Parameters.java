@@ -1,6 +1,7 @@
 package com.yuce.chat.assistant.model;
 
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
 import java.io.Serializable;
@@ -22,7 +23,6 @@ public class Parameters implements Serializable {
     String author;
     int year;
 
-    String ingredients;
-    String cuisine;
-    String dietaryRestrictions;
+    @JsonProperty("food_name")
+    String foodName;
 }
