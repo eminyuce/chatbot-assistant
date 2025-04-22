@@ -17,6 +17,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/auth")
 @Slf4j
@@ -37,13 +40,16 @@ public class AuthController {
             );
             if (authentication.isAuthenticated()) {
                 String jwtToken = jwtService.generateTokenAngularRole(authRequest);
-                return ResponseEntity.ok(new AuthResponse(jwtToken));
+                List<String> roles = authentication.getAuthorities().stream()
+                        .map(grantedAuthority -> grantedAuthority.getAuthority())
+                        .collect(Collectors.toList());
+                return ResponseEntity.ok(new AuthResponse(jwtToken, roles));
             } else {
-                return ResponseEntity.badRequest().body(new AuthResponse(null));
+                return ResponseEntity.badRequest().body(new AuthResponse(null, null));
             }
         } catch (Exception e) {
             log.error("Login failed for user: {}", authRequest.getUsername(), e);
-            return ResponseEntity.badRequest().body(new AuthResponse(null));
+            return ResponseEntity.badRequest().body(new AuthResponse(null, null));
         }
     }
 }

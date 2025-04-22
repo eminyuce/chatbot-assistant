@@ -11,6 +11,16 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class Parameters {
+
     String city;
+
     String symbol;
+
+    String title;
+    String author;
+    int year;
+
+    String ingredients;
+    String cuisine;
+    String dietaryRestrictions;
 }

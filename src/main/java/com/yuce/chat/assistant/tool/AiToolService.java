@@ -14,7 +14,7 @@ public interface AiToolService {
 
     Event getStockPrice(IntentResult intent);
 
-    Event addBook(String title,
-                  String author,
-                  int year);
+    Event bookOperation(IntentResult intent);
+
+    Event createRecipe(IntentResult intent);
 }

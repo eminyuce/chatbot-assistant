@@ -12,7 +12,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Flux;
 
 import java.time.Duration;
@@ -27,9 +30,10 @@ public class GenAIController {
     @Autowired
     private RecipeService recipeService;
 
-    @GetMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Event getResponse(@RequestParam String prompt) {
-        return chatService.getResponseStream(IChatMessage.builder().prompt(prompt).build());
+    @PostMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Event> getResponse(@RequestBody IChatMessage iChatMessage) {
+        Event event = chatService.getResponseStream(iChatMessage);
+        return ResponseEntity.ok(event);
     }
 
 
@@ -57,25 +61,20 @@ public class GenAIController {
     @PreAuthorize("hasRole('ANGULAR')")
     @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
-        var result = chatService.callTools(iChatMessage);
+        var event = chatService.callTools(iChatMessage);
         // Option 1: Send a single event with specific name and data
-        var sseEvent = ServerSentEvent.<EventResponse>builder()
-                .event(result.type()) // Explicitly set the event name
-                .data(result.eventResponse()) // Set the data
-                // .id(String.valueOf(System.currentTimeMillis())) // Optional: Event ID
-                // .retry(Duration.ofSeconds(10)) // Optional: Client retry delay
-                .build();
-
-        var stream = Flux.just(sseEvent)
-                .delayElements(Duration.ofMillis(50)); // Small delay helps ensure stream nature
+        Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
+                .map(result -> ServerSentEvent.<EventResponse>builder()
+                        .event(result.type())
+                        .data(result.eventResponse())
+                        .build())
+                .onErrorResume(throwable -> Flux.just(
+                        ServerSentEvent.<EventResponse>builder()
+                                .event("error")
+                                .data(new EventResponse("Error: " + throwable.getMessage()))
+                                .build()))
+                .delayElements(Duration.ofMillis(1));// Small delay helps ensure stream nature
 
         return ResponseEntity.ok(stream);
-    }
-
-    @GetMapping("recipe-creator")
-    public String recipeCreator(@RequestParam String ingredients,
-                                @RequestParam(defaultValue = "any") String cuisine,
-                                @RequestParam(defaultValue = "") String dietaryRestriction) {
-        return recipeService.createRecipe(ingredients, cuisine, dietaryRestriction);
     }
 }

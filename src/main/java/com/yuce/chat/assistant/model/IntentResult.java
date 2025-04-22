@@ -11,6 +11,7 @@ import lombok.*;
 @Builder
 public class IntentResult {
     String intent;
+    String subIntent;
     Parameters parameters;
 }
 

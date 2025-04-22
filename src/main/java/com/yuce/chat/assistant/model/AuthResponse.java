@@ -1,12 +1,17 @@
 package com.yuce.chat.assistant.model;
 
-import lombok.Data;
+import lombok.*;
+
+import java.util.List;
 
 @Data
+@Getter
+@Setter
+@ToString
+@EqualsAndHashCode
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuthResponse {
     private String token;
-
-    public AuthResponse(String token) {
-        this.token = token;
-    }
+    private List<String> roles;
 }

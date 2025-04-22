@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -37,10 +38,11 @@ public class ChatService {
     private Resource intentMessageResource;
 
     @Autowired
-    @Qualifier("static")
+    @Qualifier("static-services")
     private AiToolService aiToolService;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public Event getResponseStream(IChatMessage iChatMessage) {
         IntentResult intent = detectIntent(iChatMessage.getPrompt());
@@ -49,6 +51,10 @@ public class ChatService {
                 return aiToolService.getWeather(intent);
             case STOCK_PRICE:
                 return aiToolService.getStockPrice(intent);
+            case RECIPE:
+                return aiToolService.createRecipe(intent);
+            case BOOK:
+                return aiToolService.bookOperation(intent);
             default:
                 return getPromptCall(iChatMessage.getPrompt());
         }
@@ -67,34 +73,28 @@ public class ChatService {
             ));
             String jsonResponse = chatModel.call(intentPrompt).getResult().getOutput().getText();
             Map<String, Object> result = objectMapper.readValue(jsonResponse, Map.class);
+
             String intent = (String) result.getOrDefault("intent", "general");
-            Map<String, Object> parameters = (Map<String, Object>) result.getOrDefault("parameters", Map.of());
-            String city = parameters.get("city") != null ? parameters.get("city").toString() : null;
-            String symbol = parameters.get("symbol") != null ? parameters.get("symbol").toString() : null;
-            return new IntentResult(intent, new Parameters(city, symbol));
+            String subIntent = (String) result.getOrDefault("sub_intent", "");
+            Map<String, Object> parametersMap = (Map<String, Object>) result.getOrDefault("parameters", Map.of());
+
+            Parameters parameters = new Parameters();
+            for (Field field : Parameters.class.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = parametersMap.get(field.getName());
+                if (value != null) {
+                    field.set(parameters, value.toString());
+                }
+            }
+
+            return new IntentResult(intent, subIntent, parameters);
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
-            return new IntentResult("general", new Parameters(null, null));
+            return new IntentResult("general", "", new Parameters());
         }
     }
 
     public Event callTools(IChatMessage iChatMessage) {
-        try {
-            UserMessage userMessage = new UserMessage(iChatMessage.getPrompt());
-            final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
-            var result = chatClient
-                    .prompt(prompt)
-                    .tools(aiToolService) // Auto-detects @Tool-annotated methods
-                    .call()
-                    .content(); // Get raw String response
-            //  return parseStringToEvent(result); // Custom parsing logic
-            return new Event("UNKNOWN", EventResponse.builder().content(result).build());
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);
-        }
-    }
-
-    public Event callTools_v2(IChatMessage iChatMessage) {
         try {
             UserMessage userMessage = new UserMessage(iChatMessage.getPrompt());
             final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
@@ -103,16 +103,10 @@ public class ChatService {
                     .tools(aiToolService) // Auto-detects @Tool-annotated methods
                     .call()
                     .responseEntity(Event.class); // Get raw String response
-            //  return parseStringToEvent(result); // Custom parsing logic
-            // return new Event("UNKNOWN",result);
             return result.entity();
         } catch (Exception e) {
             throw new RuntimeException("Failed to deserialize response into Event: " + e.getMessage(), e);
         }
-    }
-
-    private Event parseStringToEvent(String result) throws JsonProcessingException {
-        return objectMapper.readValue(result, Event.class);
     }
 
 }
