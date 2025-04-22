@@ -9,11 +9,9 @@ import com.yuce.chat.assistant.service.BookService;
 import com.yuce.chat.assistant.service.RecipeService;
 import com.yuce.chat.assistant.service.StockService;
 import com.yuce.chat.assistant.service.WeatherService;
-import com.yuce.chat.assistant.service.impl.BookServiceImpl;
 import com.yuce.chat.assistant.tool.AiToolService;
 import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
@@ -29,14 +27,14 @@ import static com.yuce.chat.assistant.util.Constants.*;
 public class ExternalAiToolService implements AiToolService {
 
     @Autowired
-    private    StockService stockService;
+    private StockService stockService;
     @Autowired
-    private   WeatherService weatherService;
+    private WeatherService weatherService;
     @Autowired
     @Qualifier("book-service-database")
-    private   BookService bookService;
+    private BookService bookService;
     @Autowired
-    private   RecipeService recipeService;
+    private RecipeService recipeService;
 
     @Tool(name = "getWeatherByCity", description = "Get the current weather for a given city")
     @Override

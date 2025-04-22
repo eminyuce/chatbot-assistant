@@ -3,6 +3,8 @@ package com.yuce.chat.assistant.model;
 
 import lombok.*;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @ToString
@@ -10,7 +12,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Parameters {
+public class Parameters implements Serializable {
 
     String city;
 

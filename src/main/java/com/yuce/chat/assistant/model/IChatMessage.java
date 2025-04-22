@@ -3,8 +3,6 @@ package com.yuce.chat.assistant.model;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 
 @Getter
 @Setter

@@ -1,11 +1,11 @@
 package com.yuce.chat.assistant.config;
 
-import com.fasterxml.jackson.core.StreamReadFeature;
+import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.annotation.Nulls;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.yuce.chat.assistant.persistence.entity.UserEntity;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
-import com.yuce.chat.assistant.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -74,6 +74,8 @@ public class AppConfig {
     public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY));
         return objectMapper;
     }
 }

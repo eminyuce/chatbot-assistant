@@ -1,10 +1,11 @@
 package com.yuce.chat.assistant.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.model.*;
 import com.yuce.chat.assistant.tool.AiToolService;
+import com.yuce.chat.assistant.util.JsonExtractor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.ResponseEntity;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -18,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,6 @@ public class ChatService {
     @Autowired
     @Qualifier("static-services")
     private AiToolService aiToolService;
-
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -66,7 +65,7 @@ public class ChatService {
         try {
             String response = chatModel.call(prompt);
             return new Event(CHAT, EventResponse.builder().content(response).build());
-        }catch (Exception e){
+        } catch (Exception e) {
             return new Event(CHAT, EventResponse.builder().content(e.getMessage()).build());
         }
     }
@@ -77,28 +76,29 @@ public class ChatService {
                     new SystemMessage(intentMessageResource),
                     new UserMessage(prompt)
             ));
-            String jsonResponse = chatModel.call(intentPrompt).getResult().getOutput().getText();
-            Map<String, Object> result = objectMapper.readValue(jsonResponse, Map.class);
+            String rawJsonResponse = chatModel.call(intentPrompt).getResult().getOutput().getText();
+            String jsonResponse = JsonExtractor.extractJson(rawJsonResponse);
 
-            String intent = (String) result.getOrDefault("intent", "general");
-            String subIntent = (String) result.getOrDefault("sub_intent", "");
-            Map<String, Object> parametersMap = (Map<String, Object>) result.getOrDefault("parameters", Map.of());
+            return objectMapper.readValue(jsonResponse, IntentResult.class);
+//            Map<String, Object> result = objectMapper.readValue(jsonResponse, Map.class);
+//            String intent = (String) result.getOrDefault("intent", "general");
+//            String subIntent = (String) result.getOrDefault("sub_intent", "");
+//            Map<String, Object> parametersMap = (Map<String, Object>) result.getOrDefault("parameters", Map.of());
+//            Parameters parameters = extractParameterFromReflection(parametersMap);
 
-            Parameters parameters = new Parameters();
-            for (Field field : Parameters.class.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object value = parametersMap.get(field.getName());
-                if (value != null) {
-                    field.set(parameters, value.toString());
-                }
-            }
-
-            return new IntentResult(intent, subIntent, parameters);
+            // return new IntentResult(intent, subIntent, parameters);
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
-            log.error("Detecting intention error",e);
+            log.error("Detecting intention error", e);
             return new IntentResult("error", "", new Parameters());
         }
+    }
+
+    private final ModelMapper modelMapper = new ModelMapper();
+
+    public Parameters extractParameterFromReflection(Map<String, Object> parametersMap) {
+        // Convert Map to Parameters using ModelMapper
+        return modelMapper.map(parametersMap, Parameters.class);
     }
 
     public Event callTools(IChatMessage iChatMessage) {

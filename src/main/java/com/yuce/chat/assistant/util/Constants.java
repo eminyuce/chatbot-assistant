@@ -9,9 +9,10 @@ public class Constants {
     public static final String CHAT = "chat";
     public static final String ERROR = "error";
 
-    public static final String BOOK = "BOOK";
+    public static final String BOOK = "book";
 
-    public static final String ADD_BOOK = "ADD_BOOK";
-    public static final String DELETE_BOOK = "DELETE_BOOK";
-    public static final String UPDATE_BOOK = "UPDATE_BOOK";
+    public static final String ADD_BOOK = "add_book";
+    public static final String DELETE_BOOK = "delete_book";
+    public static final String UPDATE_BOOK = "update_book";
+
 }
