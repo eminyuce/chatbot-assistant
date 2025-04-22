@@ -10,6 +10,8 @@ import com.yuce.chat.assistant.service.RecipeService;
 import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.tool.annotation.Tool;
+import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     @Autowired
     private RecipeService recipeService;
 
+    @Tool(name = "getWeatherByCity", description = "Get the current weather for a given city")
     @Override
     public Event getWeatherByCity(String city) {
         return Event.builder().
@@ -35,6 +38,7 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
                 .build();
     }
 
+    @Tool(name = "getStockPriceBySymbol", description = "Get the current stock price for a given company symbol")
     @Override
     public Event getStockPriceBySymbol(String symbol) {
         return Event.builder().type(Constants.STOCK).eventResponse(EventResponse.builder().content("symbol" + symbol).build()).build();
@@ -84,9 +88,10 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     }
 
 
-    public Event addBook(String title,
-                         String author,
-                         int year) {
+    @Tool(name = "addBook", description = "Add A book to Database")
+    public Event addBook(@ToolParam(description = "title") String title,
+                         @ToolParam(description = "author") String author,
+                         @ToolParam(description = "year") int year) {
         Book book = Book.builder().author(author).year(year).title(title).build();
         bookService.addBook(book);
         return Event.builder().type(Constants.BOOK).eventResponse(EventResponse.builder().content("The Book is saved:" + book.toString()).build()).build();
