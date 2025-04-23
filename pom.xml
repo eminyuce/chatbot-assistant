@@ -15,7 +15,7 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<spring-ai.version>1.0.0-M7</spring-ai.version>
-		<spring-cloud.version>2023.0.2</spring-cloud.version>
+		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<lombok.version>1.18.30</lombok.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -84,7 +84,45 @@
 			<artifactId>micrometer-observation</artifactId>
 			<version>1.12.0</version> <!-- Compatible with Spring Boot 3.4.4 -->
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.lucene/lucene-analyzers-common -->
+		<dependency>
+			<groupId>org.apache.lucene</groupId>
+			<artifactId>lucene-analyzers-common</artifactId>
+			<version>8.11.4</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.pgvector/pgvector -->
+		<dependency>
+			<groupId>com.pgvector</groupId>
+			<artifactId>pgvector</artifactId>
+			<version>0.1.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-vertex-ai-embedding -->
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-vertex-ai-embedding</artifactId>
+			<version>1.0.0-M7</version>
+		</dependency>
+		<!--
 
+		 spring-ai-pgvector-store: This dependency provides the Spring AI integration for the PG Vector Store, enabling you to store and retrieve document embeddings in PostgreSQL.
+spring-ai-openai: This dependency provides the Spring AI integration for OpenAI, allowing you to use OpenAI’s GPT-4 model for chat functionality.
+spring-ai-pdf-document-reader: This dependency provides the Spring AI integration for reading PDF documents, enabling your application to extract text content from PDF files.
+spring-ai-tika-document-reader: This dependency provides the Spring AI integration for the Apache Tika document reader, which allows your application to extract text content from various document formats supported by Tika.
+
+		 -->
+
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-pgvector-store</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-pdf-document-reader</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.ai</groupId>
+			<artifactId>spring-ai-tika-document-reader</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -95,6 +133,7 @@
 			<artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
 			<version>1.0.0-M6</version>
 		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-circuitbreaker-reactor-resilience4j</artifactId>
@@ -128,17 +167,21 @@
 			<artifactId>h2</artifactId>
 			<scope>runtime</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.modelmapper/modelmapper -->
-		<dependency>
-			<groupId>org.modelmapper</groupId>
-			<artifactId>modelmapper</artifactId>
-			<version>3.2.2</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
 			<version>2.0.12</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.mockito/mockito-core -->
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
+			<version>5.15.2</version>
+			<scope>test</scope>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
