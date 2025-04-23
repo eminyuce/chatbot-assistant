@@ -2,21 +2,16 @@ package com.yuce.chat.assistant.service;
 
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 import static com.yuce.chat.assistant.util.Constants.RECIPE;
 
@@ -44,14 +39,14 @@ public class RecipeService {
     }
 
 
-    public Event createRecipe(IntentResult intent) {
+    public Event createRecipe(IntentExtractionResult intent) {
         Parameters parameters = intent.getParameters();
         return new Event(RECIPE,
                 new EventResponse(
                         this.createRecipe(parameters.getFoodName()
                         )));
     }
-    public Event createRecipeStatic(IntentResult intent) {
+    public Event createRecipeStatic(IntentExtractionResult intent) {
         Parameters parameters = intent.getParameters();
         return new Event(RECIPE,
                 new EventResponse("FOOD NAME:"+

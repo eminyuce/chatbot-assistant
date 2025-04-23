@@ -2,7 +2,7 @@ package com.yuce.chat.assistant.service;
 
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.persistence.entity.UserEntity;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
 import com.yuce.chat.assistant.util.Constants;
@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -49,7 +48,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new User(user.getUsername(), user.getPassword(), authorities);
     }
 
-    public Event getChatBotUsers(IntentResult intent) {
+    public Event getChatBotUsers(IntentExtractionResult intent) {
         if(intent.hasAccessRole("ROLE_ADMIN")) {
             // Define the sorting criterion (e.g., sorting by 'username' in ascending order)
             Sort sort = Sort.by(Sort.Order.asc("username"));

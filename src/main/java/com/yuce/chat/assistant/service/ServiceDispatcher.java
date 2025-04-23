@@ -1,7 +1,7 @@
 package com.yuce.chat.assistant.service;
 
 import com.yuce.chat.assistant.model.Event;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -10,15 +10,15 @@ public interface ServiceDispatcher {
 
     Event getStockPriceBySymbol(String symbol);
 
-    Event getWeather(IntentResult intent);
+    Event getWeather(IntentExtractionResult intent);
 
-    Event getStockPrice(IntentResult intent);
+    Event getStockPrice(IntentExtractionResult intent);
 
-    Event bookOperation(IntentResult intent);
+    Event bookOperation(IntentExtractionResult intent);
 
-    Event createRecipe(IntentResult intent);
+    Event createRecipe(IntentExtractionResult intent);
 
-    Event getDrugInformation(IntentResult intent);
+    Event getDrugInformation(IntentExtractionResult intent);
 
-    Event getChatBotUsers(IntentResult intent);
+    Event getChatBotUsers(IntentExtractionResult intent);
 }

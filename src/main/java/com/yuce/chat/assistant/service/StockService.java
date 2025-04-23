@@ -3,7 +3,7 @@ package com.yuce.chat.assistant.service;
 import com.yuce.chat.assistant.feign.StockClient;
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +21,10 @@ public class StockService {
     private StockClient stockClient;
 
     public Event getStockPrice(String symbol) {
-        return this.getStockPrice(IntentResult.builder().parameters(Parameters.builder().symbol(symbol).build()).build());
+        return this.getStockPrice(IntentExtractionResult.builder().parameters(Parameters.builder().symbol(symbol).build()).build());
     }
 
-    public Event getStockPrice(IntentResult intent) {
+    public Event getStockPrice(IntentExtractionResult intent) {
         EventResponse eventResponse = new EventResponse(null); // Temporary placeholder
 
         // Check if intent or parameters are null

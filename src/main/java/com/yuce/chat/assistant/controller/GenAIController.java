@@ -34,6 +34,9 @@ public class GenAIController {
 
     @PostMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Event> getResponse(@RequestBody IChatMessage iChatMessage) {
+        if (iChatMessage == null || iChatMessage.getPrompt() == null || iChatMessage.getPrompt().isBlank()) {
+            return ResponseEntity.badRequest().build(); // Basic validation
+        }
         Event event = chatService.getResponseStream(iChatMessage);
         return ResponseEntity.ok(event);
     }
@@ -44,6 +47,9 @@ public class GenAIController {
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> getResponseStream(@RequestBody IChatMessage iChatMessage,
                                                                                   HttpServletRequest request,
                                                                                   HttpServletResponse response) {
+        if (iChatMessage == null || iChatMessage.getPrompt() == null || iChatMessage.getPrompt().isBlank()) {
+            return ResponseEntity.badRequest().build(); // Basic validation
+        }
         iChatMessage.setChatBotRoles(jwtService.getRolesFromToken(request));
         Event event = chatService.getResponseStream(iChatMessage);
 
@@ -65,6 +71,9 @@ public class GenAIController {
     @PreAuthorize("hasRole('ANGULAR') or hasRole('ADMIN')")
     @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
+        if (iChatMessage == null || iChatMessage.getPrompt() == null || iChatMessage.getPrompt().isBlank()) {
+            return ResponseEntity.badRequest().build(); // Basic validation
+        }
         var event = chatService.callTools(iChatMessage);
         // Option 1: Send a single event with specific name and data
         Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)

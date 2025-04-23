@@ -1,7 +1,7 @@
 package com.yuce.chat.assistant.service.impl;
 
 import com.yuce.chat.assistant.persistence.entity.Book;
-import com.yuce.chat.assistant.repo.BookRepository;
+import com.yuce.chat.assistant.persistence.repository.BookRepository;
 import com.yuce.chat.assistant.service.BookService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -3,7 +3,7 @@ package com.yuce.chat.assistant.service.impl;
 
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.persistence.entity.Book;
 import com.yuce.chat.assistant.service.*;
 import com.yuce.chat.assistant.util.Constants;
@@ -69,32 +69,32 @@ public class ExternalServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public Event createRecipe(IntentResult intent) {
+    public Event createRecipe(IntentExtractionResult intent) {
         return recipeService.createRecipe(intent);
     }
 
     @Override
-    public Event getDrugInformation(IntentResult intent) {
+    public Event getDrugInformation(IntentExtractionResult intent) {
         return drugService.getDrugInformation(intent);
     }
 
     @Override
-    public Event getChatBotUsers(IntentResult intent) {
+    public Event getChatBotUsers(IntentExtractionResult intent) {
         return userDetailsService.getChatBotUsers(intent);
     }
 
     @Override
-    public Event getWeather(IntentResult intent) {
+    public Event getWeather(IntentExtractionResult intent) {
         return weatherService.getWeather(intent);
     }
 
     @Override
-    public Event getStockPrice(IntentResult intent) {
+    public Event getStockPrice(IntentExtractionResult intent) {
         return stockService.getStockPrice(intent);
     }
 
     @Override
-    public Event bookOperation(IntentResult intent) {
+    public Event bookOperation(IntentExtractionResult intent) {
         Book book = null;
         switch (intent.getSubIntent()) {
             case ADD_BOOK:
@@ -114,7 +114,7 @@ public class ExternalServiceDispatcher implements ServiceDispatcher {
                 .build();
     }
 
-    private Book getBook(IntentResult intent) {
+    private Book getBook(IntentExtractionResult intent) {
         String title = intent.getParameters().getTitle();
         String author = intent.getParameters().getAuthor();
         int year = intent.getParameters().getYear();

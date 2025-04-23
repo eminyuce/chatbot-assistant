@@ -21,7 +21,7 @@ public class Parameters implements Serializable {
 
     String title;
     String author;
-    int year;
+    Integer year;
 
     @JsonProperty("food_name")
     String foodName;

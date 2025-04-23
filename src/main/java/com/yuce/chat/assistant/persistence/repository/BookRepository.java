@@ -1,4 +1,4 @@
-package com.yuce.chat.assistant.repo;
+package com.yuce.chat.assistant.persistence.repository;
 
 import com.yuce.chat.assistant.persistence.entity.Book;
 import org.springframework.data.jpa.repository.JpaRepository;

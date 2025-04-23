@@ -3,7 +3,7 @@ package com.yuce.chat.assistant.service;
 import com.yuce.chat.assistant.feign.WeatherClient;
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
@@ -19,10 +19,10 @@ public class WeatherService {
     private WeatherClient weatherClient;
 
     public Event getWeather(String city) {
-        return this.getWeather(IntentResult.builder().parameters(Parameters.builder().city(city).build()).build());
+        return this.getWeather(IntentExtractionResult.builder().parameters(Parameters.builder().city(city).build()).build());
     }
 
-    public Event getWeather(IntentResult intent) {
+    public Event getWeather(IntentExtractionResult intent) {
         // Check for null intent, parameters, or city
         if (intent == null || intent.getParameters() == null || intent.getParameters().getCity() == null) {
             return new Event(Constants.ERROR, new EventResponse("Please specify a city for the weather query."));

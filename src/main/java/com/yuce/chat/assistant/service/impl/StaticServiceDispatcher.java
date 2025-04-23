@@ -2,7 +2,7 @@ package com.yuce.chat.assistant.service.impl;
 
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
-import com.yuce.chat.assistant.model.IntentResult;
+import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.persistence.entity.Book;
 import com.yuce.chat.assistant.service.ServiceDispatcher;
 import com.yuce.chat.assistant.service.BookService;
@@ -45,17 +45,17 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public Event getWeather(IntentResult intent) {
+    public Event getWeather(IntentExtractionResult intent) {
         return Event.builder().type(Constants.WEATHER).eventResponse(EventResponse.builder().content("city:" + intent.getParameters().getCity()).build()).build();
     }
 
     @Override
-    public Event getStockPrice(IntentResult intent) {
+    public Event getStockPrice(IntentExtractionResult intent) {
         return Event.builder().type(Constants.STOCK).eventResponse(EventResponse.builder().content("symbol:" + intent.getParameters().getSymbol()).build()).build();
     }
 
     @Override
-    public Event bookOperation(IntentResult intent) {
+    public Event bookOperation(IntentExtractionResult intent) {
         Book book = null;
         switch (intent.getSubIntent()) {
             case ADD_BOOK:
@@ -75,7 +75,7 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
                 .build();
     }
 
-    private Book getBook(IntentResult intent) {
+    private Book getBook(IntentExtractionResult intent) {
         String title = intent.getParameters().getTitle();
         String author = intent.getParameters().getAuthor();
         int year = intent.getParameters().getYear();
@@ -98,12 +98,12 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public Event createRecipe(IntentResult intent) {
+    public Event createRecipe(IntentExtractionResult intent) {
         return recipeService.createRecipeStatic(intent);
     }
 
     @Override
-    public Event getDrugInformation(IntentResult intent) {
+    public Event getDrugInformation(IntentExtractionResult intent) {
         return Event.builder()
                 .type(Constants.BOOK)
                 .eventResponse(EventResponse.builder()
@@ -113,7 +113,7 @@ public class StaticServiceDispatcher implements ServiceDispatcher {
     }
 
     @Override
-    public Event getChatBotUsers(IntentResult intent) {
+    public Event getChatBotUsers(IntentExtractionResult intent) {
         return null;
     }
 }

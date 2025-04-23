@@ -12,14 +12,14 @@ import java.util.Arrays;
 @ToString
 @EqualsAndHashCode
 @NoArgsConstructor
-public class IntentResult implements Serializable {
+public class IntentExtractionResult implements Serializable {
     String intent;
     @JsonProperty("sub_intent")
     String subIntent;
     Parameters parameters;
     @JsonIgnore
     IChatMessage iChatMessage;
-    public IntentResult(String intent, String subIntent, Parameters parameters) {
+    public IntentExtractionResult(String intent, String subIntent, Parameters parameters) {
         this.intent = intent;
         this.subIntent = subIntent;
         this.parameters = parameters;
@@ -58,8 +58,8 @@ public class IntentResult implements Serializable {
             return this;
         }
 
-        public IntentResult build() {
-            IntentResult result = new IntentResult(intent, subIntent, parameters);
+        public IntentExtractionResult build() {
+            IntentExtractionResult result = new IntentExtractionResult(intent, subIntent, parameters);
             return result;
         }
     }

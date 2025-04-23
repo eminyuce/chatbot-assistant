@@ -1,4 +1,23 @@
 spring:
+  ai:
+    ollama:
+      base-url: http://127.0.0.1:11434
+      chat:
+        options:
+          model: gemma3:4b
+          temperature: 0.3
+      answer:
+        options:
+          model: gemma3:4b
+          temperature: 0.4
+      deterministic:
+        options:
+          model: gemma3:4b
+          temperature: 0.0
+    embedding:
+      options:
+        model: nomic-embed-text
+
   cloud:
     compatibility-verifier:
       enabled: false
@@ -18,25 +37,6 @@ spring:
     console:
       enabled: true
       path: /h2-console
-
-  ai:
-    ollama:
-      base-url: http://127.0.0.1:11434
-      chat:
-        options:
-          model: gemma3:4b
-          temperature: 0.3
-        answer:
-          options:
-            model: gemma3:4b
-            temperature: 0.4
-        deterministic:
-          options:
-            model: gemma3:4b
-            temperature: 0.0
-    embedding:
-      options:
-        model: nomic-embed-text
 
 feign:
   weather:

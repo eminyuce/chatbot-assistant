@@ -35,13 +35,16 @@ public class ChatService {
     private Resource intentMessageResource;
 
     @Autowired
-    @Qualifier("external-services")
+    private IntentMatchingService intentMatchingService;
+
+    @Autowired
+    @Qualifier("static-services")
     private ServiceDispatcher serviceDispatcher;
     @Autowired
     private ObjectMapper objectMapper;
 
     public Event getResponseStream(IChatMessage iChatMessage) {
-        IntentResult intent = detectIntent(iChatMessage);
+        IntentExtractionResult intent = intentMatchingService.determineIntentAndExtract(iChatMessage.getPrompt());
         switch (intent.getIntent()) {
             case WEATHER:
                 return serviceDispatcher.getWeather(intent);
@@ -70,8 +73,7 @@ public class ChatService {
             return new Event(CHAT, EventResponse.builder().content(e.getMessage()).build());
         }
     }
-
-    private IntentResult detectIntent(IChatMessage iChatMessage) {
+    private IntentExtractionResult detectIntent(IChatMessage iChatMessage) {
         try {
             Prompt intentPrompt = new Prompt(List.of(
                     new SystemMessage(intentMessageResource),
@@ -80,19 +82,19 @@ public class ChatService {
             String rawJsonResponse = chatModel.call(intentPrompt).getResult().getOutput().getText();
             String jsonResponse = JsonExtractor.extractJson(rawJsonResponse);
 
-            var result =  objectMapper.readValue(jsonResponse, IntentResult.class);
+            var result =  objectMapper.readValue(jsonResponse, IntentExtractionResult.class);
             result.setIChatMessage(iChatMessage);
             return result;
         } catch (Exception e) {
             // Fallback to general query if intent detection fails
             log.error("Detecting intention error", e);
-            return new IntentResult("error", "", new Parameters());
+            return new IntentExtractionResult("error", "", new Parameters());
         }
     }
     public Event callTools(IChatMessage iChatMessage) {
         try {
             UserMessage userMessage = new UserMessage(iChatMessage.getPrompt());
-            final Prompt prompt = new Prompt(List.of(new SystemMessage(intentMessageResource), userMessage));
+            final Prompt prompt = new Prompt(List.of(new SystemMessage(this.intentMessageResource), userMessage));
             ResponseEntity<ChatResponse, Event> result = chatClient
                     .prompt(prompt)
                     .tools(serviceDispatcher) // Auto-detects @Tool-annotated methods
