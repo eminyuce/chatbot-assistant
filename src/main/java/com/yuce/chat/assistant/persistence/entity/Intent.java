@@ -21,7 +21,7 @@ public class Intent {
     private String description; // Text used for embedding
 
     @Column(name = "embedding") // Map to vector type
-    private double[] embedding;
+    private float[] embedding;
 
     @Column(name = "llm_instructions", nullable = false, columnDefinition = "TEXT")
     private String llmInstructions; // Detailed instructions for this intent

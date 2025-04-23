@@ -50,6 +50,7 @@ public class SecurityConfig {
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/actuator/**",
+                                "/api/intent/**",
                                 "/h2-console/**"
                         ).permitAll()
                         .requestMatchers("/auth/**").permitAll()

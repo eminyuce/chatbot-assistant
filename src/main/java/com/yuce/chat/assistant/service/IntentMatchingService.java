@@ -14,8 +14,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.yuce.chat.assistant.persistence.repository.IntentRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.ai.vectorstore.SimpleVectorStore.EmbeddingMath.cosineSimilarity;
 
 @Service
 @Slf4j
@@ -35,10 +38,14 @@ public class IntentMatchingService {
     public IntentExtractionResult determineIntentAndExtract(String userPrompt) {
         // 1. Calculate embedding for the user prompt
         List<Double> userEmbeddingList = embeddingService.generateEmbedding(userPrompt);
-        PGvector userEmbedding = new PGvector(convertToFloatArray(userEmbeddingList));
+        //PGvector userEmbedding = new PGvector(convertToFloatArray(userEmbeddingList));
+
+        float[] inputVector = getFloats(userEmbeddingList);
 
         // 2. Find the most similar intent description in the database
-        Optional<Intent> mostSimilarIntentOpt = intentRepository.findMostSimilarIntent(userEmbedding);
+        // Optional<Intent> mostSimilarIntentOpt = intentRepository.findMostSimilarIntent(userEmbedding);
+        Optional<Intent> mostSimilarIntentOpt = intentRepository.findAll().stream()
+                .max(Comparator.comparingDouble(i -> cosineSimilarity(i.getEmbedding(), inputVector)));
 
         if (mostSimilarIntentOpt.isEmpty()) {
             log.warn("No similar intent found for prompt: '{}'. Defaulting to general.", userPrompt);
@@ -81,6 +88,15 @@ public class IntentMatchingService {
         }
     }
 
+    private static float[] getFloats(List<Double> userEmbeddingList) {
+        Float[] data = userEmbeddingList.stream().map(x -> x.floatValue()).toArray(Float[]::new);
+        float[] inputVector = new float[userEmbeddingList.size()];
+        for(int x = 0; x < data.length; x ++) {
+            inputVector[x] = data[x].floatValue();
+        }
+        return inputVector;
+    }
+
     // Helper to convert List<Double> to float[] for PGvector
     private float[] convertToFloatArray(List<Double> list) {
         if (list == null) {
@@ -111,7 +127,7 @@ public class IntentMatchingService {
                 try {
 
                     List<Double> embeddingList = embeddingService.generateEmbedding(intent.getDescription()); // Embed the description
-                    intent.setEmbedding(embeddingList.stream().mapToDouble(Double::doubleValue).toArray());
+                    intent.setEmbedding(getFloats(embeddingList));
 
                     intentRepository.save(intent);
                     log.info("Generated and saved embedding for intent: {}", intent.getIntentName());
