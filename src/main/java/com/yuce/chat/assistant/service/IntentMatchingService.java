@@ -5,7 +5,6 @@ import com.pgvector.PGvector;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import com.yuce.chat.assistant.persistence.entity.Intent;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -35,7 +34,7 @@ public class IntentMatchingService {
     @Transactional(readOnly = true) // Read-only transaction for searching
     public IntentExtractionResult determineIntentAndExtract(String userPrompt) {
         // 1. Calculate embedding for the user prompt
-        List<Double> userEmbeddingList = embeddingService.embed(userPrompt);
+        List<Double> userEmbeddingList = embeddingService.generateEmbedding(userPrompt);
         PGvector userEmbedding = new PGvector(convertToFloatArray(userEmbeddingList));
 
         // 2. Find the most similar intent description in the database
@@ -110,8 +109,10 @@ public class IntentMatchingService {
             log.info("Found {} intents without embeddings. Generating...", intentsWithoutEmbeddings.size());
             for (Intent intent : intentsWithoutEmbeddings) {
                 try {
-                    List<Double> embeddingList = embeddingService.embed(intent.getDescription()); // Embed the description
-                    intent.setEmbedding(new PGvector(convertToFloatArray(embeddingList)));
+
+                    List<Double> embeddingList = embeddingService.generateEmbedding(intent.getDescription()); // Embed the description
+                    intent.setEmbedding(embeddingList.stream().mapToDouble(Double::doubleValue).toArray());
+
                     intentRepository.save(intent);
                     log.info("Generated and saved embedding for intent: {}", intent.getIntentName());
                 } catch (Exception e) {

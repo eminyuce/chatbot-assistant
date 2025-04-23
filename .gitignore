@@ -31,3 +31,5 @@ build/
 
 ### VS Code ###
 .vscode/
+/src/main/resources/word_embeddings/glove.6B.100d.txt
+/src/main/resources/stopwords/english.txt
