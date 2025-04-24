@@ -43,7 +43,7 @@ public class FormatTextUtil {
                         book.getTitle(), book.getAuthor(), book.getYear());
 
             case Constants.FIND_BOOK:
-                return String.format("Book deleted successfully: '%s'", book.getTitle());
+                return String.format("Found Books: '%s'", book.getTitle());
 
             default:
                 return "Unknown operation performed on the book.";

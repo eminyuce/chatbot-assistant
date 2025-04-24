@@ -35,7 +35,7 @@ public class BookServiceImpl implements BookService {
     @Override
     public List<Book> findBookByAuthor(IntentExtractionResult intent) {
         if (intent.getParameters().getAuthor() != null) {
-            return bookRepository.findBookByAuthor(intent.getParameters().getAuthor());
+            return bookRepository.findByAuthorContaining(intent.getParameters().getAuthor());
         } else if (intent.getParameters().getTitle() != null) {
             return List.of(bookRepository.findByTitle(intent.getParameters().getTitle()));
         } else if (intent.getParameters().getYear() != null) {

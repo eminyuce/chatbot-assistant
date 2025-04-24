@@ -7,8 +7,8 @@ import com.yuce.chat.assistant.service.impl.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -31,14 +31,27 @@ import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {
 
-    private final UserRepository userRepository;
-    private final JwtService jwtService;
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final ObjectMapper objectMapper; // Reuse ObjectMapper as a bean
+    @Autowired
+    private UserRepository userRepository;
+    @Autowired
+    private JwtService jwtService;
+    @Autowired
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private ObjectMapper objectMapper; // Reuse ObjectMapper as a bean
+
+    // @Bean
+    public SecurityFilterChain securityFilterChain_disable(org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Optional: for H2 console
+
+        return http.build();
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -51,9 +64,9 @@ public class SecurityConfig {
                                 "/v3/api-docs/**",
                                 "/actuator/**",
                                 "/api/intent/**",
-                                "/h2-console/**"
+                                "/h2-console/**",
+                                "/auth/**"
                         ).permitAll()
-                        .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -156,15 +156,15 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void initBooks() {
-        if (bookService.findBookByTitle("Learn Java Programming") != null) {
+        if (bookService.findBookByTitle("Learn Java Programming") == null) {
             var book = new Book();
             bookService.addBook(book.setAuthor("Emin YUCE").setYear(1998).setTitle("Learn Java Programming"));
         }
-        if (bookService.findBookByTitle("Learn C Programming") != null) {
+        if (bookService.findBookByTitle("Learn C Programming") == null) {
             var book = new Book();
             bookService.addBook(book.setAuthor("Emin YUCE").setYear(1998).setTitle("Learn C Programming"));
         }
-        if (bookService.findBookByTitle("Learn C# Programming") != null) {
+        if (bookService.findBookByTitle("Learn C# Programming") == null) {
             var book = new Book();
             bookService.addBook(book.setAuthor("Emin YUCE").setYear(1998).setTitle("Learn C# Programming"));
         }

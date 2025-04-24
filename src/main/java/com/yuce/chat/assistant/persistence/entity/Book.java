@@ -11,10 +11,11 @@ public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "title", nullable = false, unique = true)
+    @Column(name = "title", nullable = false)
     private String title;
-    @Column(name = "author", nullable = false, unique = true)
+    @Column(name = "author", nullable = false)
     private String author;
-    @Column(name = "year", nullable = false, unique = true)
+
+    @Column(name = "published_year", nullable = false) // escaped keyword
     private Integer year;
 }
