@@ -67,27 +67,4 @@ public class GenAIController {
 
         return ResponseEntity.ok(stream);
     }
-
-    @PreAuthorize("hasRole('ANGULAR') or hasRole('ADMIN')")
-    @PostMapping(value = "ask-ai-tool", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> askAgent(@RequestBody IChatMessage iChatMessage) {
-        if (iChatMessage == null || iChatMessage.getPrompt() == null || iChatMessage.getPrompt().isBlank()) {
-            return ResponseEntity.badRequest().build(); // Basic validation
-        }
-        var event = chatService.callTools(iChatMessage);
-        // Option 1: Send a single event with specific name and data
-        Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
-                .map(result -> ServerSentEvent.<EventResponse>builder()
-                        .event(result.type())
-                        .data(result.eventResponse())
-                        .build())
-                .onErrorResume(throwable -> Flux.just(
-                        ServerSentEvent.<EventResponse>builder()
-                                .event("error")
-                                .data(new EventResponse("Error: " + throwable.getMessage()))
-                                .build()))
-                .delayElements(Duration.ofMillis(1));// Small delay helps ensure stream nature
-
-        return ResponseEntity.ok(stream);
-    }
 }

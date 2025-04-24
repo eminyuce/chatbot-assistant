@@ -5,6 +5,8 @@ import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
+import com.yuce.chat.assistant.service.IntentService;
+import com.yuce.chat.assistant.service.StockService;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +15,9 @@ import org.springframework.stereotype.Service;
 import static com.yuce.chat.assistant.util.Constants.ERROR;
 import static com.yuce.chat.assistant.util.Constants.STOCK;
 
-@Service("stock-service")
+@Service("stock_price-service")
 @Slf4j
-public class StockServiceImpl implements com.yuce.chat.assistant.service.StockService {
+public class StockServiceImpl implements StockService, IntentService {
 
     @Autowired
     private StockClient stockClient;
@@ -45,4 +47,8 @@ public class StockServiceImpl implements com.yuce.chat.assistant.service.StockSe
         }
     }
 
+    @Override
+    public Event run(IntentExtractionResult intent) {
+        return this.getStockPrice(intent);
+    }
 }

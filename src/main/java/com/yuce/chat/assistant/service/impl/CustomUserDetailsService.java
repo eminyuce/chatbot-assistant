@@ -5,6 +5,7 @@ import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.persistence.entity.UserEntity;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
+import com.yuce.chat.assistant.service.IntentService;
 import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,10 +23,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service("chat_bot_users-service")
 @Slf4j
 @RequiredArgsConstructor
-public class CustomUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService, IntentService {
 
     private final UserRepository userRepository;
 
@@ -70,5 +71,10 @@ public class CustomUserDetailsService implements UserDetailsService {
                             .build())
                     .build();
         }
+    }
+
+    @Override
+    public Event run(IntentExtractionResult intent) {
+        return this.getChatBotUsers(intent);
     }
 }

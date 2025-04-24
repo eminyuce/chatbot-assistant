@@ -4,6 +4,8 @@ import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
+import com.yuce.chat.assistant.service.IntentService;
+import com.yuce.chat.assistant.service.RecipeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
@@ -15,9 +17,9 @@ import java.util.List;
 
 import static com.yuce.chat.assistant.util.Constants.RECIPE;
 
-@Service
+@Service("recipe-service")
 @Slf4j
-public class RecipeServiceImpl implements com.yuce.chat.assistant.service.RecipeService {
+public class RecipeServiceImpl implements RecipeService, IntentService {
     @Autowired
     private ChatModel chatModel;
 
@@ -55,5 +57,10 @@ public class RecipeServiceImpl implements com.yuce.chat.assistant.service.Recipe
         return new Event(RECIPE,
                 new EventResponse("FOOD NAME:" +
                         parameters.getFoodName()));
+    }
+
+    @Override
+    public Event run(IntentExtractionResult intent) {
+        return this.createRecipe(intent);
     }
 }

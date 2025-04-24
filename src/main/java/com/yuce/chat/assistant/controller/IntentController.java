@@ -22,7 +22,7 @@ public class IntentController {
         if (request == null || request.getPrompt() == null || request.getPrompt().isBlank()) {
             return ResponseEntity.badRequest().build(); // Basic validation
         }
-        IntentExtractionResult result = intentMatchingService.determineIntentAndExtract(request.getPrompt());
+        IntentExtractionResult result = intentMatchingService.extractIntention(request);
         return ResponseEntity.ok(result);
     }
 

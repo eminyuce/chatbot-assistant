@@ -5,6 +5,7 @@ import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
+import com.yuce.chat.assistant.service.IntentService;
 import com.yuce.chat.assistant.util.Constants;
 import com.yuce.chat.assistant.util.FormatTextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Service;
 
 @Service("weather-service")
 @Slf4j
-public class WeatherServiceImpl implements com.yuce.chat.assistant.service.WeatherService {
+public class WeatherServiceImpl implements com.yuce.chat.assistant.service.WeatherService, IntentService {
 
     @Autowired
     private WeatherClient weatherClient;
@@ -40,5 +41,10 @@ public class WeatherServiceImpl implements com.yuce.chat.assistant.service.Weath
         } catch (RuntimeException e) {
             return new Event(Constants.ERROR, new EventResponse("Failed to fetch weather for " + city + ": " + e.getMessage()));
         }
+    }
+
+    @Override
+    public Event run(IntentExtractionResult intent) {
+        return this.getWeather(intent);
     }
 }

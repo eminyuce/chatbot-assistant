@@ -1,6 +1,7 @@
 package com.yuce.chat.assistant.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yuce.chat.assistant.model.IChatMessage;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import com.yuce.chat.assistant.persistence.entity.Intent;
@@ -31,12 +32,17 @@ public class IntentMatchingService {
     private EmbeddingService embeddingService;
     @Autowired
     private ChatClient chatClient; // Use Builder for potential customization
-
     @Autowired
     private ObjectMapper objectMapper;
 
+    public IntentExtractionResult extractIntention(IChatMessage iChatMessage) {
+        var result = determineIntentAndExtract(iChatMessage.getPrompt());
+        result.setIChatMessage(iChatMessage);
+        return result;
+    }
+
     @Transactional(readOnly = true) // Read-only transaction for searching
-    public IntentExtractionResult determineIntentAndExtract(String userPrompt) {
+    private IntentExtractionResult determineIntentAndExtract(String userPrompt) {
         // 1. Calculate embedding for the user prompt
         List<Double> userEmbeddingList = embeddingService.generateEmbedding(userPrompt);
         //PGvector userEmbedding = new PGvector(convertToFloatArray(userEmbeddingList));

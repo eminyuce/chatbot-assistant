@@ -12,7 +12,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     void deleteByTitle(String title);
 
-    List<Book> findByAuthorContaining(String author);
+    List<Book> findByAuthorContainingIgnoreCase(String author);
 
     List<Book> findByYear(Integer year);
 }
