@@ -36,3 +36,7 @@ feign:
     config:
       default:
         loggerLevel: basic
+
+app:
+  cors:
+    allowed-origin: http://localhost:4200

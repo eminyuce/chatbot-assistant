@@ -17,6 +17,7 @@ public class Constants {
     public static final String DELETE_BOOK = "delete_book";
     public static final String UPDATE_BOOK = "update_book";
     public static final String FIND_BOOK = "find_book";
+    public static final String[] ALLOWED_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE"};
 
 
 }

@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.filter.JwtAuthenticationFilter;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
 import com.yuce.chat.assistant.service.impl.JwtService;
+import com.yuce.chat.assistant.util.Constants;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -41,17 +43,9 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
-    private ObjectMapper objectMapper; // Reuse ObjectMapper as a bean
-
-    // @Bean
-    public SecurityFilterChain securityFilterChain_disable(org.springframework.security.config.annotation.web.builders.HttpSecurity http) throws Exception {
-        http
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .csrf(csrf -> csrf.disable())
-                .headers(headers -> headers.frameOptions(frame -> frame.disable())); // Optional: for H2 console
-
-        return http.build();
-    }
+    private ObjectMapper objectMapper;
+    @Value("${app.cors.allowed-origin}")
+    private String allowedOrigin;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -101,8 +95,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE"));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigin));
+        configuration.setAllowedMethods(Arrays.asList(Constants.ALLOWED_METHODS));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

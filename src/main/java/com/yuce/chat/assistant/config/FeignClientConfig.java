@@ -8,6 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class FeignClientConfig {
 
+    public static final String WEATHER_CLIENT = "weatherClient";
+    public static final String STOCK_CLIENT = "stockClient";
     @Value("${weather-api-key:1234}")
     private String weatherApiKey;
 
@@ -19,10 +21,10 @@ public class FeignClientConfig {
         return requestTemplate -> {
             String clientName = requestTemplate.feignTarget().name();
             switch (clientName) {
-                case "weatherClient":
+                case WEATHER_CLIENT:
                     requestTemplate.header("X-API-KEY", weatherApiKey);
                     break;
-                case "stockClient":
+                case STOCK_CLIENT:
                     requestTemplate.header("X-API-KEY", stockApiKey);
                     break;
                 default:
