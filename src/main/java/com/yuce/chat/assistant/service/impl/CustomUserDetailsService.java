@@ -50,8 +50,9 @@ public class CustomUserDetailsService implements UserDetailsService, IntentServi
         return new User(user.getUsername(), user.getPassword(), authorities);
     }
 
+    @Override
     @RequireIntentRole({"ROLE_ADMIN"})
-    public Event getChatBotUsers(IntentExtractionResult intent) {
+    public Event run(IntentExtractionResult intent) {
         // Define the sorting criterion (e.g., sorting by 'username' in ascending order)
         Sort sort = Sort.by(Sort.Order.asc("username"));
 
@@ -64,10 +65,5 @@ public class CustomUserDetailsService implements UserDetailsService, IntentServi
                         .content(FormatTextUtil.formatUsersResponse(users))
                         .build())
                 .build();
-    }
-
-    @Override
-    public Event run(IntentExtractionResult intent) {
-        return this.getChatBotUsers(intent);
     }
 }

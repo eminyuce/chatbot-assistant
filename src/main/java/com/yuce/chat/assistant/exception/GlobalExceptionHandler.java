@@ -8,16 +8,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import reactor.core.publisher.Flux;
 
 import javax.naming.ServiceUnavailableException;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -35,14 +40,27 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ServiceRoleSecurityException.class)
-    public ResponseEntity<Event> handleGlobalException(ServiceRoleSecurityException ex, WebRequest request) {
+    public ResponseEntity<Flux<ServerSentEvent<EventResponse>>> handleGlobalException(ServiceRoleSecurityException ex, WebRequest request) {
         log.error("An unexpected error occurred", ex);
-        return new ResponseEntity<>(Event.builder()
+        Event event = Event.builder()
                 .type(Constants.CHAT_BOT_USERS)
                 .eventResponse(EventResponse.builder()
-                        .content("Only ADMIN roles user can access these information")
+                                .content("Only ADMIN roles user can access these information")
+                                .build()).build();
+
+        Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
+                .map(result -> ServerSentEvent.<EventResponse>builder()
+                        .event(result.type())
+                        .data(result.eventResponse())
                         .build())
-                .build(), HttpStatus.INTERNAL_SERVER_ERROR);
+                .onErrorResume(throwable -> Flux.just(
+                        ServerSentEvent.<EventResponse>builder()
+                                .event("error")
+                                .data(new EventResponse("Error: " + throwable.getMessage()))
+                                .build()))
+                .delayElements(Duration.ofMillis(1));
+
+        return ResponseEntity.badRequest().body(stream);
     }
 
     @ExceptionHandler(BadRequestException.class)
