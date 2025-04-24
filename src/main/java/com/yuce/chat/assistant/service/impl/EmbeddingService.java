@@ -25,8 +25,8 @@ public class EmbeddingService {
     private static final int EMBEDDING_DIMENSION = 100; // Adjust based on your pre-trained model
 
     public EmbeddingService() {
-        loadWordEmbeddings("C:\\Embedding\\glove.6B.100d.txt"); // Replace with your embeddings file
-        loadStopWords("C:\\Embedding\\english.txt"); // Replace with your stop words file
+        loadWordEmbeddings("C:\\Embedding\\glove.6B.100d.txt");
+        loadStopWords("C:\\Embedding\\english.txt");
     }
 
     private void loadWordEmbeddings(String filePath) {
@@ -102,12 +102,6 @@ public class EmbeddingService {
 
         log.info("Generated embedding (averaged word vectors) for: {}", userPrompt);
         return embeddingList;
-    }
-
-    private String stemWord_OLD(String word) {
-        // Use Lucene's EnglishAnalyzer for stemming
-        String[] tokens = englishAnalyzer.tokenStream("field", word).toString().split("\\s+");
-        return tokens.length > 0 ? tokens[0] : word; // Return the first token after stemming
     }
 
     private String stemWord(String word) {
