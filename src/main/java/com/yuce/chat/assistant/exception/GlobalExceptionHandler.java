@@ -1,5 +1,8 @@
 package com.yuce.chat.assistant.exception;
 
+import com.yuce.chat.assistant.model.Event;
+import com.yuce.chat.assistant.model.EventResponse;
+import com.yuce.chat.assistant.util.Constants;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -29,6 +32,17 @@ public class GlobalExceptionHandler {
         log.error("An unexpected error occurred", ex);
         ErrorResponse errorResponse = createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ServiceRoleSecurityException.class)
+    public ResponseEntity<Event> handleGlobalException(ServiceRoleSecurityException ex, WebRequest request) {
+        log.error("An unexpected error occurred", ex);
+        return new ResponseEntity<>(Event.builder()
+                .type(Constants.CHAT_BOT_USERS)
+                .eventResponse(EventResponse.builder()
+                        .content("Only ADMIN roles user can access these information")
+                        .build())
+                .build(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(BadRequestException.class)
