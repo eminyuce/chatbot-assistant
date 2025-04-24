@@ -2,7 +2,7 @@ package com.yuce.chat.assistant.controller;
 
 import com.yuce.chat.assistant.model.AuthRequest;
 import com.yuce.chat.assistant.model.AuthResponse;
-import com.yuce.chat.assistant.service.JwtService;
+import com.yuce.chat.assistant.service.impl.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -41,7 +41,7 @@ public class AuthController {
                     new UsernamePasswordAuthenticationToken(authRequest.getUsername(), authRequest.getPassword())
             );
             if (authentication.isAuthenticated()) {
-                String jwtToken = jwtService.generateToken(authentication,authRequest);
+                String jwtToken = jwtService.generateToken(authentication, authRequest);
                 List<String> roles = authentication.getAuthorities().stream()
                         .map(grantedAuthority -> grantedAuthority.getAuthority())
                         .collect(Collectors.toList());

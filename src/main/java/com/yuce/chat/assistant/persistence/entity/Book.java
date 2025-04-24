@@ -1,24 +1,20 @@
 package com.yuce.chat.assistant.persistence.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.*;
+import jakarta.persistence.*;
+import lombok.Data;
+import lombok.experimental.Accessors;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Data
+@Accessors(chain = true)
 @Entity(name = "books")
 public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
+    @Column(name = "title", nullable = false, unique = true)
     private String title;
+    @Column(name = "author", nullable = false, unique = true)
     private String author;
-    int year;
+    @Column(name = "year", nullable = false, unique = true)
+    private Integer year;
 }

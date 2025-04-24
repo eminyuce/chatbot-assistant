@@ -29,6 +29,7 @@ logging:
       springframework:
         aop: DEBUG
         security: TRACE
+        jpa: TRACE
 
 feign:
   client:

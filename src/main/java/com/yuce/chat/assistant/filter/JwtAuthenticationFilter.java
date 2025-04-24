@@ -1,6 +1,6 @@
 package com.yuce.chat.assistant.filter;
 
-import com.yuce.chat.assistant.service.JwtService;
+import com.yuce.chat.assistant.service.impl.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

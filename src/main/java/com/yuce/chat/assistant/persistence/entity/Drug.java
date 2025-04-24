@@ -22,5 +22,5 @@ public class Drug {
     private Integer id;
     private String name;
     private String description;
-    Date expiredDate;
+    private Date expiredDate;
 }

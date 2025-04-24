@@ -3,7 +3,7 @@ package com.yuce.chat.assistant.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.filter.JwtAuthenticationFilter;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
-import com.yuce.chat.assistant.service.JwtService;
+import com.yuce.chat.assistant.service.impl.JwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

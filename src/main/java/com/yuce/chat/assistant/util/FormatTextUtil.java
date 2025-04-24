@@ -5,11 +5,9 @@ import com.yuce.chat.assistant.model.WeatherResponse;
 import com.yuce.chat.assistant.persistence.entity.Book;
 import com.yuce.chat.assistant.persistence.entity.Drug;
 import com.yuce.chat.assistant.persistence.entity.UserEntity;
+import org.springframework.util.CollectionUtils;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class FormatTextUtil {
@@ -20,11 +18,18 @@ public class FormatTextUtil {
     }
 
 
-    public static String formatBookResponse(Book book, String subIntent) {
-        if (book == null) {
+    public static String formatBookResponse(List<Book> books, String subIntent) {
+        if (CollectionUtils.isEmpty(books)) {
             return "No book found or affected.";
         }
+        List<String> result = new ArrayList<>();
+        for (var book : books) {
+            result.add(getBookString(book, subIntent));
+        }
+        return result.toString();
+    }
 
+    private static String getBookString(Book book, String subIntent) {
         switch (subIntent) {
             case Constants.ADD_BOOK:
                 return String.format("Book added successfully: '%s' by %s (%d)",
@@ -37,11 +42,13 @@ public class FormatTextUtil {
                 return String.format("Book updated successfully: '%s' by %s (%d)",
                         book.getTitle(), book.getAuthor(), book.getYear());
 
+            case Constants.FIND_BOOK:
+                return String.format("Book deleted successfully: '%s'", book.getTitle());
+
             default:
                 return "Unknown operation performed on the book.";
         }
     }
-
 
 
     public static String formatUsersResponse(List<UserEntity> users) {

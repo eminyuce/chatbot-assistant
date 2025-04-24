@@ -19,6 +19,7 @@ public class IntentExtractionResult implements Serializable {
     Parameters parameters;
     @JsonIgnore
     IChatMessage iChatMessage;
+
     public IntentExtractionResult(String intent, String subIntent, Parameters parameters) {
         this.intent = intent;
         this.subIntent = subIntent;
@@ -37,6 +38,7 @@ public class IntentExtractionResult implements Serializable {
         return iChatMessage.getChatBotRoles().stream().anyMatch(role ->
                 Arrays.asList(roles).contains(role));
     }
+
     // Builder pattern implementation
     public static class Builder {
         private String intent;
