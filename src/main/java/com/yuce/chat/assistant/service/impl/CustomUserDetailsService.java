@@ -51,19 +51,28 @@ public class CustomUserDetailsService implements UserDetailsService, IntentServi
     }
 
     @Override
-    @RequireIntentRole({"ROLE_ADMIN"})
+   // @RequireIntentRole({"ROLE_ADMIN"})
     public Event run(IntentExtractionResult intent) {
-        // Define the sorting criterion (e.g., sorting by 'username' in ascending order)
-        Sort sort = Sort.by(Sort.Order.asc("username"));
+        if (intent.hasAccessRole("ROLE_ADMIN")) {
+            // Define the sorting criterion (e.g., sorting by 'username' in ascending order)
+            Sort sort = Sort.by(Sort.Order.asc("username"));
 
-        // Fetch users with sorting applied
-        var users = userRepository.findAll(sort);
+            // Fetch users with sorting applied
+            var users = userRepository.findAll(sort);
 
-        return Event.builder()
-                .type(Constants.CHAT_BOT_USERS)
-                .eventResponse(EventResponse.builder()
-                        .content(FormatTextUtil.formatUsersResponse(users))
-                        .build())
-                .build();
+            return Event.builder()
+                    .type(Constants.CHAT_BOT_USERS)
+                    .eventResponse(EventResponse.builder()
+                            .content(FormatTextUtil.formatUsersResponse(users))
+                            .build())
+                    .build();
+        } else {
+            return Event.builder()
+                    .type(Constants.CHAT_BOT_USERS)
+                    .eventResponse(EventResponse.builder()
+                            .content("Only ADMIN roles user can access these information")
+                            .build())
+                    .build();
+        }
     }
 }
