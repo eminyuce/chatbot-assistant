@@ -1,123 +1,128 @@
-# 🤖 Chatbot Assistant
 
-A Java Spring Boot-based chatbot assistant powered by a locally running LLM (via [Ollama](https://ollama.com/)) and integrated with **Spring AI**. This assistant can intelligently detect user intent and respond with information such as weather updates or stock prices. The architecture includes two different service modes for flexibility and experimentation.
+# 🤖 Chatbot Assistant (Java Spring Boot + Local LLM via Ollama)
 
----
+A smart, role-based AI assistant built with Java 21, Spring Boot 3, Spring AI, and locally hosted LLM (via Ollama). It extracts user intent from chat input and routes it to appropriate backend services (e.g., weather, stock price, book DB, etc.).
+The front-end is built with Angular: Angular Frontend Repo: https://github.com/eminyuce/angular-chatbot
 
-## ✨ Features
+## 🔥 Key Features
 
-- 🔁 **Locally Hosted LLM**: Utilizes Ollama to run a Large Language Model locally for fast, secure, and offline access.
-- 🎯 **Intent Detection**: Extracts user intent from input using LLM and routes to the correct service.
-- ☁️ **Weather & Stock Info**: Dynamically calls external APIs (or static fallbacks) using FeignClient based on user intent.
-- 🛠️ **Two Operating Modes**:
-  - `ask-ai-stream`: Uses LLM for intent extraction and a `switch`-based logic to call API services.
-  - `ask-ai-tool`: Uses Spring AI's `@Tool` annotation to dynamically trigger corresponding service logic.
+- 🧠 **Intent Extraction** with vector similarity and LLM JSON parsing
+- 🔐 **Role-based Access** using Spring Security + JWT (Angular/Admin roles)
+- 📡 **Third-party API Integration** via FeignClient
+- ⚙️ **Pluggable Services** dynamically executed based on intent
+- 🖥️ **Locally Hosted LLM** using [Ollama](https://ollama.com/) for fast and secure inference
 
----
+## 🧱 Architecture
 
-## 🧱 Architecture Overview
-
+```text
+Angular Frontend
+       ↓
+REST API (Spring Boot)
+       ↓
+Intent Extraction Service (LLM + Embedding Similarity)
+       ↓
+Resolved Service Layer (Weather, Books, Stocks, etc.)
+       ↓
+Third Party APIs / Internal Logic
 ```
-User Input --> Spring AI (LLM via Ollama)
-           --> Extracted Intent
-                --> [ask-ai-stream] --> Switch/Case based service call
-                --> [ask-ai-tool]   --> @Tool annotated dynamic method call
-           --> Response (Weather / Stock Info / Static Fallback)
-```
 
----
+## 🛠️ Tech Stack
 
-## 🧩 Tech Stack
-
-- **Java 21**
-- **Spring Boot 3**
-- **Spring AI**
-- **Ollama (Local LLM Runtime)**
-- **FeignClient** (for external API calls)
-- **Static Abstraction Layer** (fallback for service layer when APIs are unavailable)
-
----
+| Layer             | Tech                            |
+|------------------|----------------------------------|
+| Language          | Java 21                          |
+| Framework         | Spring Boot 3                    |
+| LLM Runtime       | Ollama (e.g., LLaMA2, Mistral)   |
+| Security          | Spring Security + JWT            |
+| REST API          | Spring Web, Spring Actuator      |
+| Database          | H2 (in-memory)                   |
+| Vector Matching   | Custom Embedding Service         |
+| External APIs     | FeignClient                      |
+| Documentation     | Swagger/OpenAPI                  |
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 - Java 21
-- Docker (for Ollama)
-- Ollama installed and running with a chosen LLM model (e.g., `llama2`, `mistral`, etc.)
+- Docker
+- [Ollama installed](https://ollama.com/)
+- A running LLM model (e.g. `llama2`, `mistral`, etc.)
 
-### Clone the Repo
+### Run Ollama Model
 
 ```bash
-git clone https://github.com/your-username/chatbot-assistant.git
-cd chatbot-assistant
+ollama run llama2
 ```
 
-### Start Ollama
+### Run Spring Boot App
 
 ```bash
-ollama run mistral
+./mvnw spring-boot:run
 ```
 
-> Replace `mistral` with the model you're using.
+### Access API Documentation
 
-### Run the App
-
-Choose one of the service modes:
-
-```bash
-# Run dev
-./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
-
-# Run prod
-./mvnw spring-boot:run -Dspring-boot.run.profiles=prod
+```
+http://localhost:8080/swagger-ui/index.html
 ```
 
----
+## 📂 Project Structure
 
-## 🧪 Example Intents
-
-| User Input                     | Extracted Intent | Service Called    |
-|-------------------------------|------------------|-------------------|
-| "What's the weather in Paris?"| weather          | Weather API       |
-| "Get me the latest stock price of AAPL" | stock       | Stock Price API  |
-
----
-
-## 📁 Project Structure
-
-```bash
+```
 src/
-├── main/
-│   ├── java/com/yourname/chatbot/
-│   │   ├── stream/         # ask-ai-stream implementation
-│   │   ├── tool/           # ask-ai-tool implementation
-│   │   ├── service/        # Business logic layer
-│   │   ├── static/         # Static fallback service
-│   │   └── config/         # Ollama and Spring AI configs
-│   └── resources/
-│       └── application.yml # Profiles and configs
+├── controller/           // REST endpoints
+├── service/              // Core services (intent, embedding, execution)
+├── security/             // JWT & role-based access
+├── llm/                  // Spring AI LLM integration
+├── config/               // App and Feign configuration
+└── model/                // DTOs and domain models
 ```
 
----
+## ✨ Supported Intents & Examples
 
-## 🧠 Notes
+| Intent         | Example Input                                  |
+|----------------|------------------------------------------------|
+| Weather        | “What is the weather in Istanbul?”             |
+| Stock Price    | “What is the stock price of AMD?”              |
+| Book CRUD      | “Add book titled ‘AI Revolution’ by John”      |
+| Recipe         | “Give me the recipe of New York Pizza”         |
+| Drug Info      | “Tell me about aspirin”                        |
+| Admin Users    | “Get all users of chatbot” (admin only)        |
 
-- Static layer is used when external API access is unavailable, simulating the real service responses.
-- Intent routing logic in `ask-ai-stream` is ideal for basic rule-based control.
-- `@Tool` annotation in `ask-ai-tool` provides a dynamic and elegant approach to delegate tasks using Spring AI.
+## 🔒 Role-Based Access
 
----
+Service | Example Input | Roles Allowed
+|----------------|-------------|-----------------------------------|
+Weather          | "What's the weather in Istanbul?"          | Angular, Admin
+Stock Prices     | "Get AMD's stock price."                   | Angular, Admin
+Book Database    | "Add a book titled 'AI Revolution'."       | Angular, Admin
+Food Recipe      | "Give me the recipe for New York pizza"     | Angular, Admin
+Drug Info        | "Tell me about Aspirin."                   | Angular, Admin
+Chatbot Users    | "List all chatbot users."                 | Admin only
 
-## 🏗️ Future Improvements
+## 🧠 Intent Extraction Flow
 
-- ✅ Add real API integrations with proper authentication
-- 💬 Add support for multi-turn conversations
-- 📦 Package as Docker container for easy deployment
-- 🧪 Add unit and integration tests for services
+1. Receive user input via API
+2. Generate embedding vector of input
+3. Match it to stored intents
+4. Use LLM to extract structured intent JSON
+5. Execute appropriate backend service
 
----
+## 🌐 Repositories
 
-## 📜 License
+- 🔗 [Backend Repo (Spring Boot)](https://github.com/eminyuce/chatbot-assistant)
+- 🔗 [Frontend Repo (Angular)](https://github.com/eminyuce/angular-chatbot)
 
-MIT License — feel free to use and contribute!
+## 🧪 Testing
+
+You can use tools like Postman or the Swagger UI to test:
+
+ 
+
+## 📢 Future Enhancements
+
+- Integrate real Drug APIs via GraphQL
+- Support image generation with multimodal models
+- Improve Aspect-based role validation messages
+
