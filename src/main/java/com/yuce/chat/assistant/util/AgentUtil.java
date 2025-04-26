@@ -1,14 +1,14 @@
 package com.yuce.chat.assistant.util;
 
 
-import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.ollama.api.OllamaOptions;
 
 import java.util.List;
 
 public class AgentUtil {
 
-    public static OpenAiChatOptions createFunctionOptions(String... functions) {
-        var builder = OpenAiChatOptions.builder();
+    public static OllamaOptions createFunctionOptions(String... functions) {
+        var builder = OllamaOptions.builder();
         for (String function : functions) {
             builder = builder.function(function);
         }

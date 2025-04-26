@@ -86,7 +86,8 @@ public class AlphaClientNewsSentimentals {
                             .queryParam("apikey", apikey)
                             .build())
                     .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                    .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                    })
                     .block();
         } catch (Exception e) {
             log.warn("Error fetching data from Alpha API for ticker: {}", ticker, e);

@@ -44,8 +44,8 @@ public class GlobalExceptionHandler {
         Event event = Event.builder()
                 .type(Constants.CHAT_BOT_USERS)
                 .eventResponse(EventResponse.builder()
-                                .content("Only ADMIN roles user can access these information")
-                                .build()).build();
+                        .content("Only ADMIN roles user can access these information")
+                        .build()).build();
 
         Flux<ServerSentEvent<EventResponse>> stream = Flux.just(event)
                 .map(result -> ServerSentEvent.<EventResponse>builder()

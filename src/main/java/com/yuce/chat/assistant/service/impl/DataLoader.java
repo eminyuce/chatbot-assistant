@@ -2,22 +2,30 @@ package com.yuce.chat.assistant.service.impl;
 
 import com.yuce.chat.assistant.persistence.entity.Book;
 import com.yuce.chat.assistant.persistence.entity.Intent;
+import com.yuce.chat.assistant.persistence.entity.UserPreferences;
 import com.yuce.chat.assistant.persistence.repository.IntentRepository;
+import com.yuce.chat.assistant.persistence.repository.UserPreferencesRepository;
 import com.yuce.chat.assistant.service.BookService;
+import com.yuce.chat.assistant.util.Constants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class DataLoader implements CommandLineRunner {
 
-    private final IntentRepository intentRepository;
-    private final IntentMatchingService intentMatchingService;
-    private final BookService bookService;
+    @Autowired
+    private   IntentRepository intentRepository;
+    @Autowired
+    private   UserPreferencesRepository userPreferencesRepository;
+    @Autowired
+    private   IntentMatchingService intentMatchingService;
+    @Autowired
+    private   BookService bookService;
     private static final String WEATHER_INSTRUCTIONS = """
             You are an assistant that determines the intent of a user prompt and extracts relevant parameters for the 'weather' intent.
             Return a JSON response with the following structure:
@@ -153,6 +161,14 @@ public class DataLoader implements CommandLineRunner {
     public void run(String... args) {
         initIntents();
         initBooks();
+        initUserPref();
+    }
+
+    private void initUserPref() {
+        if(userPreferencesRepository.findById(1) == null)
+        userPreferencesRepository.save(new UserPreferences(1, Constants.CRYPTO));
+        if(userPreferencesRepository.findById(2) == null)
+            userPreferencesRepository.save(new UserPreferences(2, Constants.STOCKS));
     }
 
     private void initBooks() {

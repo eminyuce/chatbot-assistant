@@ -19,5 +19,6 @@ public class Constants {
     public static final String FIND_BOOK = "find_book";
     public static final String[] ALLOWED_METHODS = {"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS", "PATCH", "TRACE"};
 
-
+    public static final String CRYPTO = "crypto";
+    public static final String STOCKS = "stocks";
 }

@@ -4,7 +4,8 @@ import com.yuce.chat.assistant.annotation.RequireIntentRole;
 import com.yuce.chat.assistant.exception.ServiceRoleSecurityException;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;

@@ -100,11 +100,7 @@
 			<artifactId>json</artifactId>
 			<version>20240303</version>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework.ai</groupId>
-			<artifactId>spring-ai-openai-spring-boot-starter</artifactId>
-			<version>${spring-ai.version}</version>
-		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.pgvector/pgvector -->
 		<dependency>
 			<groupId>com.pgvector</groupId>

@@ -1,6 +1,5 @@
 package com.yuce.chat.assistant.service.impl;
 
-import com.yuce.chat.assistant.annotation.RequireIntentRole;
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
@@ -51,7 +50,7 @@ public class CustomUserDetailsService implements UserDetailsService, IntentServi
     }
 
     @Override
-   // @RequireIntentRole({"ROLE_ADMIN"})
+    // @RequireIntentRole({"ROLE_ADMIN"})
     public Event run(IntentExtractionResult intent) {
         if (intent.hasAccessRole("ROLE_ADMIN")) {
             // Define the sorting criterion (e.g., sorting by 'username' in ascending order)

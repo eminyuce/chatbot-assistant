@@ -1,6 +1,9 @@
 package com.yuce.chat.assistant.config;
 
-import com.yuce.chat.assistant.model.*;
+import com.yuce.chat.assistant.model.GetNewsByPreferenceRequest;
+import com.yuce.chat.assistant.model.GetNewsByPreferenceResponse;
+import com.yuce.chat.assistant.model.UserPreferenceRequest;
+import com.yuce.chat.assistant.model.UserPreferenceResponse;
 import com.yuce.chat.assistant.persistence.repository.UserPreferencesRepository;
 import com.yuce.chat.assistant.service.agent.GetNewsByUserPreferences;
 import com.yuce.chat.assistant.service.agent.UserPreferencesService;
