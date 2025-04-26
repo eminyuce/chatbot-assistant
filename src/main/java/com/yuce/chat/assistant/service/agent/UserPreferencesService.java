@@ -24,7 +24,7 @@ public class UserPreferencesService implements Function<UserPreferenceRequest, U
         var preference = userPreferencesRepository.findById(userPreferenceRequest.userId())
                 .orElseThrow(() -> new IllegalArgumentException("User preferences not found"));
         logger.info("User preferences: {}", preference);
-        var topic = preference.category();
+        var topic = preference.getCategory();
         return new UserPreferenceResponse(topic);
     }
 }

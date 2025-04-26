@@ -59,6 +59,7 @@ public class SecurityConfig {
                                 "/actuator/**",
                                 "/api/intent/**",
                                 "/h2-console/**",
+                                "/news/**",
                                 "/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated()
