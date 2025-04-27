@@ -8,11 +8,7 @@ import java.util.List;
 public class AgentUtil {
 
     public static OllamaOptions createFunctionOptions(String... functions) {
-        var builder = OllamaOptions.builder();
-        for (String function : functions) {
-            builder = builder.function(function);
-        }
-        return builder.build();
+        return OllamaOptions.builder().toolNames(functions).build();
     }
 
     public static String combinedQuery(List<String> queries) {
