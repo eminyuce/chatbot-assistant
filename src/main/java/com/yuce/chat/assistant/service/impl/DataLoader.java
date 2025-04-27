@@ -165,10 +165,10 @@ public class DataLoader implements CommandLineRunner {
     }
 
     private void initUserPref() {
-        if(userPreferencesRepository.findById(1) == null)
-        userPreferencesRepository.save(new UserPreferences(1, Constants.CRYPTO));
-        if(userPreferencesRepository.findById(2) == null)
-            userPreferencesRepository.save(new UserPreferences(2, Constants.STOCKS));
+        if(userPreferencesRepository.findById(1).isEmpty())
+        userPreferencesRepository.save(new UserPreferences( Constants.CRYPTO));
+        if(userPreferencesRepository.findById(2).isEmpty())
+            userPreferencesRepository.save(new UserPreferences(Constants.STOCKS));
     }
 
     private void initBooks() {

@@ -15,7 +15,7 @@ import java.util.List;
 
 @Profile("dev")
 @Configuration
-public class DevBeanConfig {
+public class OllamaConfig {
 
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;

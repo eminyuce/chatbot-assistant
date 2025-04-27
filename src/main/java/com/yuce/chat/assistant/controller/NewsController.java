@@ -74,6 +74,7 @@ public class NewsController {
         UserMessage userMessage = new UserMessage(
                 """
                         Get summarize news by topic depending on userId: %s.
+                        Get topic by userId first so you can request news based on user topic
                         Only result need to be provided
                         Example:
                         [
