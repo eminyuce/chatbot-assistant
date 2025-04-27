@@ -35,7 +35,7 @@ public class GetNewsByUserPreferences implements Function<GetNewsByPreferenceReq
         } else  if (topic.equals(Constants.STOCKS)) {
             request = new GetNewsRequest(Constants.STOCKS);
         }else{
-            throw new IllegalArgumentException("No Request will be done for "+topic);
+            throw new IllegalArgumentException("No Request will be done for ["+topic+"]");
         }
 
         logger.info("Request: {}", request);

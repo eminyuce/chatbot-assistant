@@ -5,6 +5,8 @@ import com.yuce.chat.assistant.model.NewsAndSentimentals;
 import com.yuce.chat.assistant.util.AgentUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -12,6 +14,7 @@ import org.springframework.ai.chat.model.Generation;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.converter.BeanOutputConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -26,11 +29,11 @@ public class NewsController {
 
     private static final Logger logger = LoggerFactory.getLogger(NewsController.class);
 
-    private final ChatModel chatModel;
+    private final ChatClient chatClient ;
     private final BeanOutputConverter<List<NewsAndSentimentals>> outputConverter;
 
-    public NewsController(ChatModel chatModel) {
-        this.chatModel = chatModel;
+    public NewsController(ChatClient chatClient) {
+        this.chatClient = chatClient;
         this.outputConverter = new BeanOutputConverter<>(
                 new ParameterizedTypeReference<List<NewsAndSentimentals>>() {
                 });
@@ -91,7 +94,7 @@ public class NewsController {
                         .formatted(userId)
         );
         ChatOptions aiChatOptions = AgentUtil.createFunctionOptions(AiAgent.GET_LATEST_NEWS_BY_TOPIC_FUNCTION_NAME, AiAgent.GET_USER_PREFERENCES_FUNCTION_NAME);
-        ChatResponse response = this.chatModel.call(new Prompt(userMessage, aiChatOptions));
+        ChatResponse response = this.chatClient.prompt(new Prompt(userMessage, aiChatOptions)).advisors(new SimpleLoggerAdvisor()).call().chatResponse();
         logger.info("Response: {}", response);
         Generation generation = response.getResult();
         return this.outputConverter.convert(generation.getOutput().getText());
