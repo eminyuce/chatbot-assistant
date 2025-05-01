@@ -73,7 +73,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-   // @Bean
+    // @Bean
     public SecurityFilterChain securityFilterChain_h2Console(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
