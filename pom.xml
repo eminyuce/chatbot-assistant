@@ -134,12 +134,6 @@ spring-ai-tika-document-reader: This dependency provides the Spring AI integrati
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-tika-document-reader</artifactId>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
-		<dependency>
-			<groupId>org.freemarker</groupId>
-			<artifactId>freemarker</artifactId>
-			<version>2.3.34</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.springdoc</groupId>

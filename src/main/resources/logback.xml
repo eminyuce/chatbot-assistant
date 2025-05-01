@@ -26,20 +26,20 @@
 
     <!-- Async Appender for better performance -->
     <appender name="Async" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="File"/>
+        <appender-ref ref="File" />
         <queueSize>500</queueSize>
         <discardingThreshold>0</discardingThreshold>
     </appender>
 
     <!-- Root Logger -->
     <root level="info">
-        <appender-ref ref="Console"/>
-        <appender-ref ref="Async"/>
+        <appender-ref ref="Console" />
+        <appender-ref ref="Async" />
     </root>
 
     <!-- Specific logger for detailed debugging -->
     <logger name="com.yuce.chat.assistant" level="debug" additivity="false">
-        <appender-ref ref="Console"/>
-        <appender-ref ref="Async"/>
+        <appender-ref ref="Console" />
+        <appender-ref ref="Async" />
     </logger>
 </configuration>

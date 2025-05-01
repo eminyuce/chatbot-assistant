@@ -96,17 +96,7 @@ public class FormatTextUtil {
         );
     }
 
-    public String formatDrugResponse(Drug drug) {
-        return String.format(
-                "<html>" +
-                        "<b>Drug Name:</b> %s<br/>" +
-                        "<b>Description:</b> %s<br/>" +
-                        "<b>Expiration Date:</b> %s" +
-                        "</html>",
-                drug.getName(),
-                drug.getDescription(),
-                drug.getExpiredDate().toLocalDate()
-        );
+    public String formatDrugResponse(Drug findDrug) {
+        return findDrug.toString();
     }
-
 }

@@ -32,6 +32,15 @@ public class GenAIController {
     @Autowired
     private JwtService jwtService;
 
+    @PostMapping(value = "ask-ai", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Event> getResponse(@RequestBody IChatMessage iChatMessage) {
+        if (iChatMessage == null || iChatMessage.getPrompt() == null || iChatMessage.getPrompt().isBlank()) {
+            return ResponseEntity.badRequest().build(); // Basic validation
+        }
+        Event event = chatService.getResponseStream(iChatMessage);
+        return ResponseEntity.ok(event);
+    }
+
 
     @PreAuthorize("hasRole('ANGULAR') or hasRole('ADMIN')")
     @PostMapping(value = "ask-ai-stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
@@ -58,6 +67,4 @@ public class GenAIController {
 
         return ResponseEntity.ok(stream);
     }
-
-
 }

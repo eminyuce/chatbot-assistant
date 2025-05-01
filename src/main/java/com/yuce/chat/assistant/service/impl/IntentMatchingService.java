@@ -84,15 +84,12 @@ public class IntentMatchingService {
             // Parse the LLM's JSON response
 
             // Parse the LLM's JSON response
-            String llmResponseString = response.getResult().getOutput().getText();
-            log.info("LLM model response text:[{}]", llmResponseString);
-            if (JsonExtractor.isItValidJson(llmResponseString)) {
-                IntentExtractionResult result = outputParser.parse(llmResponseString);
-                log.debug("LLM extraction result: {}", result);
-                return result;
-            } else {
-                return getDefaultGeneralIntentExtractionResult("Error during LLM Model processing JSON response.");
-            }
+            String rawJsonResponse = response.getResult().getOutput().getText();
+            String jsonResponse = JsonExtractor.extractJson(rawJsonResponse);
+            IntentExtractionResult result = outputParser.parse(jsonResponse);
+            log.debug("LLM extraction result: {}", result);
+            return result;
+
         } catch (Exception e) {
             log.error("Error calling LLM or parsing response for prompt '{}': {}", userPrompt, e.getMessage(), e);
             // Fallback or error handling

@@ -17,6 +17,7 @@ import java.util.function.Function;
 public class GetNewsByUserPreferences implements Function<GetNewsByPreferenceRequest, GetNewsByPreferenceResponse> {
 
 
+
     private static final Logger logger = LoggerFactory.getLogger(GetNewsByUserPreferences.class);
     private final NewsService newsService;
 
@@ -31,10 +32,10 @@ public class GetNewsByUserPreferences implements Function<GetNewsByPreferenceReq
         GetNewsRequest request = null;
         if (topic.equals(Constants.CRYPTO)) {
             request = new GetNewsRequest(Constants.CRYPTO);
-        } else if (topic.equals(Constants.STOCKS)) {
+        } else  if (topic.equals(Constants.STOCKS)) {
             request = new GetNewsRequest(Constants.STOCKS);
-        } else {
-            throw new IllegalArgumentException("No Request will be done for [" + topic + "]");
+        }else{
+            throw new IllegalArgumentException("No Request will be done for ["+topic+"]");
         }
 
         logger.info("Request: {}", request);

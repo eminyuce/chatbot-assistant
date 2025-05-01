@@ -23,10 +23,4 @@ public class Drug {
     private String name;
     private String description;
     private Date expiredDate;
-
-    public Drug(String name, String description, Date expiredDate) {
-        this.name = name;
-        this.description = description;
-        this.expiredDate = expiredDate;
-    }
 }
