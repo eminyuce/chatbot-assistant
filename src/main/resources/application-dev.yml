@@ -47,4 +47,4 @@ feign:
 
 Alpha:
   host: https://www.alphavantage.co
-  api-key: ${ALPHA-API-KEY}
+  api-key: ${ALPHA_API_KEY}

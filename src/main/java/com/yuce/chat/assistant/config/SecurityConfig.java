@@ -49,7 +49,7 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origin}")
     private String allowedOrigin;
 
-    @Bean
+    //@Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -73,7 +73,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // @Bean
+    @Bean("securityFilterChain")
     public SecurityFilterChain securityFilterChain_h2Console(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
