@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface DrugRepository extends JpaRepository<Drug, Long> {
 
-    Drug findByName(String drugName);
+    Drug findByNameIgnoreCase(String drugName);
 }
