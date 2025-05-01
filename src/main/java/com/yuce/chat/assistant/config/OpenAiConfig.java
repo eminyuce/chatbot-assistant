@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Profile;
 
 @Profile("prod")
 @Configuration
-public class ProdBeanConfig {
+public class OpenAiConfig {
 
     @Value("${spring.ai.openai.api-key}")
     private String openAiApiKey;
@@ -22,8 +22,8 @@ public class ProdBeanConfig {
 
     @Bean
     public ChatModel openAiChatModel() {
-        /*
-        OpenAiApi openAiApi =  OpenAiApi.builder()
+/*
+        var openAiApi = OpenAiApi.builder()
                 .baseUrl(openAiBaseUrl)
                 .apiKey(openAiApiKey)
                 .build();
@@ -32,15 +32,19 @@ public class ProdBeanConfig {
                 .openAiApi(openAiApi)
                 .defaultOptions(OpenAiChatOptions.builder().model(openAiModel).build())
                 .build();
-        */
+                */
         return null;
     }
 
 
     @Bean
     public ChatClient openAiChatClient(ChatModel openAiChatModel) {
-        return ChatClient.builder(openAiChatModel)
+        /*
+        return ChatClient.builder(openAiChatModel())
                 .defaultSystem("You are a helpful assistant.")
                 .build();
+
+         */
+        return null;
     }
 }

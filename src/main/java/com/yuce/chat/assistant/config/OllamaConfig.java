@@ -1,6 +1,7 @@
 package com.yuce.chat.assistant.config;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.ollama.OllamaChatModel;
 import org.springframework.ai.ollama.api.OllamaApi;
@@ -15,7 +16,7 @@ import java.util.List;
 
 @Profile("dev")
 @Configuration
-public class DevBeanConfig {
+public class OllamaConfig {
 
     @Value("${spring.ai.ollama.base-url:http://localhost:11434}")
     private String ollamaBaseUrl;
@@ -34,7 +35,7 @@ public class DevBeanConfig {
 
     @Bean
     public ChatClient chatClient(ChatModel chatModel) {
-        return ChatClient.builder(chatModel).build();
+        return ChatClient.builder(chatModel).defaultAdvisors(List.of(new SimpleLoggerAdvisor())).build();
     }
 
 }

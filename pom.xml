@@ -14,7 +14,7 @@
 	<name>chatbot-service</name>
 	<description>Demo project for Spring Boot</description>
 	<properties>
-		<spring-ai.version>1.0.0-M7</spring-ai.version>
+		<spring-ai.version>1.0.0-M6</spring-ai.version>
 		<spring-cloud.version>2024.0.0</spring-cloud.version>
 		<lombok.version>1.18.30</lombok.version>
 
@@ -94,6 +94,13 @@
 			<artifactId>lucene-analyzers-common</artifactId>
 			<version>8.11.4</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.json/json -->
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20240303</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.pgvector/pgvector -->
 		<dependency>
 			<groupId>com.pgvector</groupId>
@@ -127,6 +134,12 @@ spring-ai-tika-document-reader: This dependency provides the Spring AI integrati
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-tika-document-reader</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.freemarker/freemarker -->
+		<dependency>
+			<groupId>org.freemarker</groupId>
+			<artifactId>freemarker</artifactId>
+			<version>2.3.34</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.springdoc</groupId>
@@ -137,7 +150,7 @@ spring-ai-tika-document-reader: This dependency provides the Spring AI integrati
 		<dependency>
 			<groupId>org.springframework.ai</groupId>
 			<artifactId>spring-ai-ollama-spring-boot-starter</artifactId>
-			<version>1.0.0-M6</version>
+			<version>${spring-ai.version}</version>
 		</dependency>
 
 		<dependency>

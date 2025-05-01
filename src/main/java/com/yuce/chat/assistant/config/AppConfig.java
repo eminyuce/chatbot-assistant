@@ -4,8 +4,9 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,12 +16,16 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-@RequiredArgsConstructor
 @Slf4j
 public class AppConfig {
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    @Value("${Alpha.host}")
+    private String alphaHost;
 
     //This bean runs after the full Spring context is ready, and is more reliable for DB initialization.
     @Bean
@@ -30,6 +35,10 @@ public class AppConfig {
         };
     }
 
+    @Bean
+    public WebClient webClient() {
+        return WebClient.builder().baseUrl(alphaHost).build();
+    }
 
     private InMemoryUserDetailsManager getInMemoryUserDetailsManager() {
         var user = User.builder()

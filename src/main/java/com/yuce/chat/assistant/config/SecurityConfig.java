@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @Slf4j
@@ -59,6 +61,7 @@ public class SecurityConfig {
                                 "/actuator/**",
                                 "/api/intent/**",
                                 "/h2-console/**",
+                                "/news/**",
                                 "/auth/**"
                         ).permitAll()
                         .anyRequest().authenticated()
@@ -69,6 +72,21 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    // @Bean
+    public SecurityFilterChain securityFilterChain_h2Console(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable())
+                .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/h2-console/**").permitAll() // Allow H2 Console
+                        .anyRequest().authenticated() // Everything else needs auth
+                )
+                .httpBasic(withDefaults());
+
+        return http.build();
+    }
+
 
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
             throws IOException, ServletException {

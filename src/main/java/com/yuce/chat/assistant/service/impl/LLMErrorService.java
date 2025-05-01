@@ -15,4 +15,6 @@ public class LLMErrorService implements IntentService {
     public Event run(IntentExtractionResult intent) {
         return Event.builder().eventResponse(EventResponse.builder().content("LLM Model returns error.").build()).build();
     }
+
+
 }

@@ -30,6 +30,7 @@ logging:
         aop: DEBUG
         security: TRACE
         jpa: TRACE
+        ai.chat.client.advisor: DEBUG
 
 feign:
   client:

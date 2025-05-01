@@ -42,3 +42,7 @@ feign:
   stock:
     client:
       url: http://localhost:8081/feign-demo/stock-client
+
+Alpha:
+  host: https://www.alphavantage.co
+  api-key:
