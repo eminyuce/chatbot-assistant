@@ -2,7 +2,12 @@ springdoc:
   swagger-ui:
     path: /swagger-ui/index.html
 
+server:
+  port: 8091
+
 spring:
+  profiles:
+    active: dev
   main:
     allow-bean-definition-overriding: true
 management:

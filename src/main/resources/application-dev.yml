@@ -47,4 +47,8 @@ feign:
 
 Alpha:
   host: https://www.alphavantage.co
-  api-key: ${ALPHA_API_KEY}
+  api-key: 123343434
+
+groq:
+  api-key:
+  model: meta-llama/llama-4-scout-17b-16e-instruct
