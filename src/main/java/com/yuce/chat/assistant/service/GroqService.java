@@ -16,7 +16,7 @@ import java.util.*;
 public class GroqService {
 
     private static final String GROQ_API_URL = "https://api.groq.com/openai/v1/chat/completions";
-    private static final Path CSV_PATH = Path.of("C:/Users/YUCE/Desktop/Education/urunler_groq.csv");
+    private static final Path CSV_PATH = Path.of("C:/Users/YUCE/Desktop/Education/urunler_groq_v1.csv");
 
     @Autowired
     private GroqConfig groqConfig;
@@ -46,12 +46,14 @@ public class GroqService {
                     System.out.printf("%d) PROCESSING PRODUCT: %s%n", i, productName);
                     System.out.println("Raw Groq response:\n" + aiResponse);
 
+
+
                     if (!aiResponse.trim().startsWith("{")) {
-                        String newDescription="";
+                        String newDescription="JSON_DATA";
                         String newLine = String.join(",",
                                 stockCode,
                                 "\"" + productName.replace("\"", "\"\"") + "\"",
-                                "\"" + aiResponse  + "\"",
+                                "\"" + "ERROR-JSON"  + "\"",
                                 "\"" + newDescription + "\""
                         );
                         outputLines.add(newLine);
@@ -101,6 +103,7 @@ public class GroqService {
 
         Files.write(CSV_PATH, outputLines, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
         System.out.println("FINISHED");
+        System.exit(1);
     }
 
     private String buildPrompt(String productName) {

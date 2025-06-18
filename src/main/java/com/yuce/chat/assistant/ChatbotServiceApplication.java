@@ -21,7 +21,7 @@ public class ChatbotServiceApplication {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         ApplicationContext context =   SpringApplication.run(ChatbotServiceApplication.class, args);
-        context.getBean(GroqService.class).generateDescriptions();
+        //context.getBean(GroqService.class).generateDescriptions();
     }
 
 }

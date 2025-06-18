@@ -45,4 +45,4 @@ feign:
 
 app:
   cors:
-    allowed-origin: http://localhost:4200
+    allowed-origin: http://localhost:8060

@@ -25,6 +25,4 @@ public class StockResponse {
         @JsonProperty("01. symbol")
         private String symbol;
     }
-
-
 }

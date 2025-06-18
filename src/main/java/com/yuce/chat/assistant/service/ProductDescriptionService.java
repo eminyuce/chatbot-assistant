@@ -2,7 +2,10 @@ package com.yuce.chat.assistant.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.model.ChatModel;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -44,7 +47,7 @@ public class ProductDescriptionService {
                 if (!productName.isBlank() && (bullets.isBlank() || bullets.trim().equals("\"error\""))) {
                     productName=productName.replaceAll("\"", "");
                     String prompt = buildPrompt(productName);
-                    String aiResponse = callOpenAI(prompt);
+                    String aiResponse = callOpenAI(productName,prompt);
                     System.out.println(i+")PROCESSING PRODUCT NAME:" + productName);
                     // JSON parse et
                     JsonNode rootNode = mapper.readTree(aiResponse);
@@ -94,44 +97,48 @@ public class ProductDescriptionService {
 
     private String buildPrompt(String productName) {
         return """
-            You are a helpful assistant that ONLY outputs JSON.
-            The following product name is a food or personal care product containing natural or organic ingredients. Create a simple and informative description in accordance with Turkish Food Codex and labeling regulations.
-
-            Your task is to generate a JSON object containing:
-            1.  "productName": The name of the product.
-            2.  "bullets": An array of four strings answering the following, in order:
-                a. What is the product?
-                b. What is it traditionally used for?
-                c. What are its general supportive effects on the body?
-                d. How should it be used?
-            3.  "description": A single string containing a detailed explanation of 100-150 words, combining the information from the bullet points into a coherent paragraph.
-
-            Constraints for the content:
-            -   Avoid sentences containing medical or definitive claims.
-            -   Refrain from using bold expressions such as "100% natural," "healing," or "miracle."
-            -   All text MUST be in Turkish.
-
-            Product Name: [PRODUCT_NAME]
-
-            Respond ONLY with a valid JSON object structured exactly as shown below. Do NOT include any other text, explanations, or markdown before or after the JSON object.
-
-            {
-              "productName": "[PRODUCT_NAME_HERE]",
-              "bullets": [
-                "Turkish answer to point 2a",
-                "Turkish answer to point 2b",
-                "Turkish answer to point 2c",
-                "Turkish answer to point 2d"
-              ],
-              "description": "Turkish detailed explanation of 100-150 words."
-            }
+                You are a helpful assistant that ONLY outputs JSON.
+                The following product name is a food or personal care product containing natural or organic ingredients. Create a simple and informative description in accordance with Turkish Food Codex and labeling regulations.
+                
+                Your task is to generate a JSON object containing:
+                1. "productName": The name of the product.
+                2. "bullets": An array of four strings answering the following, in order:
+                    a. What is the product?
+                    b. What is it traditionally used for?
+                    c. What are its general supportive effects on the body?
+                    d. How should it be used?
+                3. "description": A single string containing a detailed explanation of 100-150 words, combining the information from the bullet points into a coherent paragraph.
+                4. "tagCategoryName": If the product name contains 'X', set to 'Y'. Else, if the product name contains 'A', set to 'B'. Otherwise, set to 'Genel'.
+                5. "productKeywords": An array of 5-7 SEO-friendly keywords or tags related to the product content or name.
+                
+                Constraints for the content:
+                - Avoid sentences containing medical or definitive claims.
+                - Refrain from using bold expressions such as "100% natural," "healing," or "miracle."
+                - All text MUST be in Turkish.
+                
+                Respond ONLY with a valid JSON object structured exactly as shown below. Do NOT include any other text, explanations, or markdown before or after the JSON object.
+                
+                {
+                  "productName": "[PRODUCT_NAME_HERE]",
+                  "tagCategoryName": "Y, B, or Genel based on conditions",
+                  "bullets": [
+                    "Turkish answer to point 2a",
+                    "Turkish answer to point 2b",
+                    "Turkish answer to point 2c",
+                    "Turkish answer to point 2d"
+                  ],
+                  "description": "Turkish detailed explanation of 100-150 words.",
+                  "productKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"]
+                }
             """.replace("[PRODUCT_NAME]", productName)
                 .replace("[PRODUCT_NAME_HERE]", productName); // Also replace in the example for clarity
     }
 
 
-    private String callOpenAI(String prompt) throws IOException, InterruptedException {
-        String response = chatModel.call(prompt);
+    private String callOpenAI(String productName,String prompt) throws IOException, InterruptedException {
+        var userPrompt = new UserMessage("Product Name:"+productName);
+        var systemPrompt = new SystemMessage(prompt);
+        String response = chatModel.call(systemPrompt,userPrompt);
         return response;
     }
 }
