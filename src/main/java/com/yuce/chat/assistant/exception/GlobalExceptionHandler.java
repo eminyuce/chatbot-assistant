@@ -1,10 +1,13 @@
 package com.yuce.chat.assistant.exception;
 
+import com.yuce.chat.assistant.config.ObservabilityConfig;
 import com.yuce.chat.assistant.model.Event;
 import com.yuce.chat.assistant.model.EventResponse;
 import com.yuce.chat.assistant.util.Constants;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.apache.coyote.BadRequestException;
 import org.springframework.beans.TypeMismatchException;
 import org.springframework.http.HttpStatus;
@@ -31,9 +34,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @Autowired(required = false)
+    private ObservabilityConfig.ChatMetrics chatMetrics;
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception ex, WebRequest request) {
         log.error("An unexpected error occurred", ex);
+        if (chatMetrics != null) {
+            chatMetrics.recordError("GlobalExceptionHandler", ex.getClass().getSimpleName());
+        }
         ErrorResponse errorResponse = createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred", request.getDescription(false));
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -143,15 +152,21 @@ public class GlobalExceptionHandler {
         errorResponse.setMessage(message);
         errorResponse.setTimestamp(LocalDateTime.now());
         errorResponse.setPath(path);
+        errorResponse.setTraceId(MDC.get("traceId"));
+        errorResponse.setSpanId(MDC.get("spanId"));
+        errorResponse.setCorrelationId(MDC.get("correlationId"));
         return errorResponse;
     }
 
-    // Define a more structured error response class
+    // Structured error response with trace metadata for end-to-end correlation
     public static class ErrorResponse {
         private int statusCode;
         private String message;
         private LocalDateTime timestamp;
         private String path;
+        private String traceId;
+        private String spanId;
+        private String correlationId;
         private Map<String, Object> details = new HashMap<>();
 
         public int getStatusCode() {
@@ -184,6 +199,30 @@ public class GlobalExceptionHandler {
 
         public void setPath(String path) {
             this.path = path;
+        }
+
+        public String getTraceId() {
+            return traceId;
+        }
+
+        public void setTraceId(String traceId) {
+            this.traceId = traceId;
+        }
+
+        public String getSpanId() {
+            return spanId;
+        }
+
+        public void setSpanId(String spanId) {
+            this.spanId = spanId;
+        }
+
+        public String getCorrelationId() {
+            return correlationId;
+        }
+
+        public void setCorrelationId(String correlationId) {
+            this.correlationId = correlationId;
         }
 
         public Map<String, Object> getDetails() {

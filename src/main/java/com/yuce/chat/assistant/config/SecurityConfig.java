@@ -2,6 +2,7 @@ package com.yuce.chat.assistant.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yuce.chat.assistant.filter.JwtAuthenticationFilter;
+import com.yuce.chat.assistant.filter.ObservabilityFilter;
 import com.yuce.chat.assistant.persistence.repository.UserRepository;
 import com.yuce.chat.assistant.service.impl.JwtService;
 import com.yuce.chat.assistant.util.Constants;
@@ -45,6 +46,8 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
     @Autowired
+    private ObservabilityFilter observabilityFilter;
+    @Autowired
     private ObjectMapper objectMapper;
     @Value("${app.cors.allowed-origin}")
     private String allowedOrigin;
@@ -67,6 +70,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(observabilityFilter, JwtAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(this::commence));
 

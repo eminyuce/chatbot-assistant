@@ -5,9 +5,11 @@ import com.yuce.chat.assistant.model.IChatMessage;
 import com.yuce.chat.assistant.model.IntentExtractionResult;
 import com.yuce.chat.assistant.model.Parameters;
 import com.yuce.chat.assistant.persistence.entity.Intent;
+import com.yuce.chat.assistant.config.ObservabilityConfig;
 import com.yuce.chat.assistant.persistence.repository.IntentRepository;
 import com.yuce.chat.assistant.util.BeanOutputParser;
 import com.yuce.chat.assistant.util.JsonExtractor;
+import io.micrometer.core.instrument.Timer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.model.ChatResponse;
@@ -34,10 +36,17 @@ public class IntentMatchingService {
     private ChatClient chatClient; // Use Builder for potential customization
     @Autowired
     private ObjectMapper objectMapper;
+    @Autowired(required = false)
+    private ObservabilityConfig.IntentMetrics intentMetrics;
 
     public IntentExtractionResult extractIntention(IChatMessage iChatMessage) {
-        var result = determineIntentAndExtract(iChatMessage.getPrompt());
+        Timer.Sample sample = intentMetrics != null ? intentMetrics.startIntentLatency() : null;
+        IntentExtractionResult result = determineIntentAndExtract(iChatMessage.getPrompt());
         result.setIChatMessage(iChatMessage);
+        if (intentMetrics != null && sample != null) {
+            intentMetrics.recordIntentLatency(sample, result.getIntent());
+            intentMetrics.recordIntentMatch(result.getIntent(), true);
+        }
         return result;
     }
 
@@ -56,7 +65,7 @@ public class IntentMatchingService {
 
         if (mostSimilarIntentOpt.isEmpty()) {
             log.warn("No similar intent found for prompt: '{}'. Defaulting to general.", userPrompt);
-            // Handle case where no intents are in DB or search fails - maybe default to "general" instructions
+            if (intentMetrics != null) intentMetrics.recordIntentMatch("general", false);
             return getDefaultGeneralIntentExtractionResult();
         }
 

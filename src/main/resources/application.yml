@@ -5,19 +5,40 @@ springdoc:
 spring:
   main:
     allow-bean-definition-overriding: true
+  application:
+    name: chatbot-service
+
 management:
   endpoints:
     web:
       exposure:
-        include: "*"  # Exposes all endpoints over HTTP
+        include: health,info,prometheus,metrics  # Prometheus at /actuator/prometheus
   endpoint:
     health:
-      show-details: always  # Shows detailed health information
+      show-details: always
     shutdown:
-      enabled: true  # Enables the /shutdown endpoint (use with caution)
+      enabled: true
+    prometheus:
+      enabled: true
   server:
-    port: 9001  # Optional: Separate port for Actuator endpoints
-    address: 127.0.0.1  # Optional: Bind to localhost for security
+    port: 9001
+    address: 127.0.0.1
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  tracing:
+    enabled: true
+    sampling:
+      probability: 1.0
+    propagation:
+      type: w3c
+
+spring.cloud.openfeign:
+  micrometer:
+    enabled: true
 
 logging:
   level:
@@ -41,3 +62,31 @@ feign:
 app:
   cors:
     allowed-origin: http://localhost:4200
+
+resilience4j.circuitbreaker:
+  configs:
+    default:
+      registerHealthIndicator: true
+      slidingWindowSize: 10
+      minimumNumberOfCalls: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      failureRateThreshold: 50
+      eventConsumerBufferSize: 10
+  instances:
+    weatherClient:
+      baseConfig: default
+    stockClient:
+      baseConfig: default
+
+resilience4j.retry:
+  configs:
+    default:
+      maxAttempts: 3
+      waitDuration: 2s
+  instances:
+    weatherClient:
+      baseConfig: default
+    stockClient:
+      baseConfig: default
